@@ -73,6 +73,7 @@
 
 #include "sensorsim.h"
 #include "nrf_gpio.h"
+#include "nrf_delay.h"
 #include "ble_hci.h"
 #include "ble_advdata.h"
 #include "ble_advertising.h"
@@ -110,25 +111,23 @@
 /**
  * @brief Function for doing power management.
  */
-static void power_manage(void)
-{
-    ret_code_t err_code = sd_app_evt_wait();
-    APP_ERROR_CHECK(err_code);
-}
+//static void power_manage(void)
+//{
+//    ret_code_t err_code = sd_app_evt_wait();
+//    APP_ERROR_CHECK(err_code);
+//}
 
 
 /**@brief Function for application main entry.
  */
 int main(void)
 {
+	nrf_gpio_cfg_output(22);
     // Enter main loop.
     for (;;)
     {
-    	power_manage();
+    	nrf_gpio_pin_toggle(22);
+    	nrf_delay_ms(125);
     }
 }
 
-
-/**
- * @}
- */
