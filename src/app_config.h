@@ -17,6 +17,10 @@
 #define APP_TIMER_OP_QUEUE_SIZE                         10                                          /**< Size of timer operation queues. */
 #define APP_TIMER_MAX_TIMERS                            10
 
+// Scheduler configurations. */
+#define SCHED_MAX_EVENT_DATA_SIZE                       sizeof(app_timer_event_t)
+#define SCHED_QUEUE_SIZE                                10
+
 /** Advertising characteristics. */
 #define DEFAULT_ADVERTISING_TX_POWER                    0xF4 /** -12 dBm */                         /**< Advertising Tx Power. */
 #define ADVERTISING_RSSI_0M                             0xC3                                        /**< The Beacon's measured RSSI at 0 meter distance in dBm. */
