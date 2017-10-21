@@ -5,8 +5,8 @@
  *      Author: Gabriel
  */
 
-#ifndef SRC_BLE400_BOARD_H_
-#define SRC_BLE400_BOARD_H_
+#ifndef BOARD_CUSTOM
+#define BOARD_CUSTOM
 
 /** TWI PINS */
 #define BLE400_TWI_SMBA_PIN     2
@@ -36,4 +36,4 @@
 #define BLE400_KEY_1_PIN        16
 #define BLE400_KEY_2_PIN        17
 
-#endif /* SRC_BLE400_BOARD_H_ */
+#endif /* BOARD_CUSTOM */

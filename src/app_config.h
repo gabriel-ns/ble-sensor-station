@@ -8,7 +8,6 @@
 #ifndef SRC_APP_CONFIG_H_
 #define SRC_APP_CONFIG_H_
 
-#include "BLE400_board.h"
 
 /** Application configuration */
 
