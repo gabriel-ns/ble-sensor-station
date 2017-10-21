@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <stddef.h>
 
 #include "app_config.h"
 #include "softdevice_handler.h"
@@ -18,12 +19,12 @@
 #include "app_timer.h"
 #include "app_timer_appsh.h"
 #include "app_scheduler.h"
+#include "app_error.h"
 
 #include "BLE400_board.h"
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
-#include "twi_interface.h"
-#include "ble_manager.h"
+
 
 /**
  * @brief Function for doing power management.
@@ -39,6 +40,7 @@ static void power_manage(void)
  */
 int main(void)
 {
+
     /** Start the application scheduler */
     APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
 
@@ -55,7 +57,7 @@ int main(void)
     // Initialize the SoftDevice handler module.
     SOFTDEVICE_HANDLER_INIT(&lf_clock_config, NULL);
 
-    ble_manager_init();
+//    ble_manager_init();
 //    sensor_manager_init();
 
     // Enter main loop.

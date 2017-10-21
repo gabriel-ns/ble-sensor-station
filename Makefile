@@ -1,18 +1,17 @@
-PROJECT_NAME     := ble_app_template_pca10028_s130
+PROJECT_NAME     := ble_sensor_station
 TARGETS          := nrf51822_xxaa
 OUTPUT_DIRECTORY := _build
 
-SDK_ROOT := ../nRF5_SDK_12.2.0_f012efa
+SDK_ROOT := ../nRF5_SDK_12.3.0_d7731ad
 PROJ_DIR := .
 
 $(OUTPUT_DIRECTORY)/nrf51822_xxaa.out: \
-  LINKER_SCRIPT  := ble_app_template_gcc_nrf51.ld
+  LINKER_SCRIPT  := nrf51_ble_station_linker.ld
 
 # Source files common to all targets
 SRC_FILES += \
   $(PROJ_DIR)/src/main.c \
-  $(PROJ_DIR)/src/sensing/twi_interface.c \
-  $(PROJ_DIR)/src/ble/ble_manager.c \
+  $(PROJ_DIR)/src/libs/ble/ble_manager.c \
   $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
   $(SDK_ROOT)/components/ble/common/ble_advdata.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
@@ -46,8 +45,8 @@ SRC_FILES += \
 # Include folders common to all targets
 INC_FOLDERS += \
   $(PROJ_DIR)/src/ \
-  $(PROJ_DIR)/src/sensing \
-  $(PROJ_DIR)/src/ble \
+  $(PROJ_DIR)/src/libs/sensing \
+  $(PROJ_DIR)/src/libs/ble \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/ble/ble_dtm \
