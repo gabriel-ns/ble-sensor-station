@@ -8,8 +8,17 @@
 #ifndef SRC_APP_CONFIG_H_
 #define SRC_APP_CONFIG_H_
 
+#include "custom_board.h"
 
 /** Application configuration */
+#define BMP180_DEFAULT_PWR_MODE                 BMP180_ULTRA_LOW_PWR
+#define HTU21D_DEFAULT_RESOLUTION               HTU21D_RES_RH_8_TEMP_12
+#define TSL2561_DEFAULT_GAIN                    TSL2561_GAIN_0
+#define TSL2561_DEFAULT_INT_TIME                TSL2561_INTEGRATION_TIME_13_7MS
+#define LUMINOSITY_DEFAULT_SAMPLING_INTERVAL    5000
+#define TEMP_HUM_DEFAULT_SAMPLING_INTERVAL      5000
+#define PRESSURE_DEFAULT_SAMPLING_INTERVAL      5000
+
 
 /** Timer configurations. */
 #define APP_TIMER_PRESCALER                             0                                           /**< Value of the RTC1 PRESCALER register. */
@@ -44,8 +53,8 @@
 #define MAX_CONN_PARAMS_UPDATE_COUNT                    3
 
 /** Sensing configuration */
-#define TWI_SCL_PIN		BLE400_TWI_SCL_PIN
-#define TWI_SDA_PIN 	BLE400_TWI_SDA_PIN
+#define TWI_SCL_PIN		1
+#define TWI_SDA_PIN 	0
 
 
 #endif /* SRC_APP_CONFIG_H_ */

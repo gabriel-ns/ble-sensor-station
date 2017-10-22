@@ -12,6 +12,11 @@ $(OUTPUT_DIRECTORY)/nrf51822_xxaa.out: \
 SRC_FILES += \
   $(PROJ_DIR)/src/main.c \
   $(PROJ_DIR)/src/libs/ble/ble_manager.c \
+  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/bmp180/nrf5-bmp180-drv.c \
+  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/htu21d/nrf5-htu21d-drv.c \
+  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/tsl2561/nrf5-tsl2561-drv.c \
+  $(PROJ_DIR)/src/libs/sensing/sensor_manager.c \
+  $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
   $(SDK_ROOT)/components/ble/common/ble_advdata.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
@@ -46,10 +51,14 @@ SRC_FILES += \
 INC_FOLDERS += \
   $(PROJ_DIR)/src/ \
   $(PROJ_DIR)/src/libs/sensing \
+  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/bmp180/ \
+  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/htu21d/ \
+  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/tsl2561/ \
   $(PROJ_DIR)/src/libs/ble \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/ble/ble_dtm \
+  $(SDK_ROOT)/components/drivers_nrf/uart \
   $(SDK_ROOT)/components/ble/ble_racp \
   $(SDK_ROOT)/components/ble/common \
   $(SDK_ROOT)/components/ble/nrf_ble_qwr \
@@ -105,7 +114,7 @@ CFLAGS += -DNRF51822
 CFLAGS += -DNRF_SD_BLE_API_VERSION=2
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS +=  -Wall -Werror -O3 -g3
+CFLAGS +=  -Wall -O3 -g3
 CFLAGS += -mfloat-abi=soft
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
@@ -132,7 +141,6 @@ LDFLAGS += -mcpu=cortex-m0
 LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs -lc -lnosys
-
 
 .PHONY: $(TARGETS) default all clean help flash flash_softdevice
 
