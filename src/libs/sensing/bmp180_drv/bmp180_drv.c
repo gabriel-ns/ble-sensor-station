@@ -76,13 +76,16 @@ typedef struct __attribute__((packed)) bmp180_callibration
 APP_TIMER_DEF(m_bmp180_internal_timer);
 
 static bmp180_callibration_t m_calib_data;
+
 static bmp180_pwr_mode_t m_pwr_mode;
+
 static bmp180_data_t m_sensor_data;
+
+static uint16_t raw_buffer;
+
 static nrf_drv_twi_t *mp_twi;
 
 static bmp180_event_cb_t p_event_callback;
-
-static uint16_t raw_buffer;
 
 static sensor_event_t m_last_evt;
 /***********************************************

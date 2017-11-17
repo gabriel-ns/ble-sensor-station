@@ -24,12 +24,6 @@ typedef enum tsl2561_gain
     TSL2561_GAIN_16X = 1
 }tsl2561_gain_t;
 
-typedef enum tsl2561_power
-{
-    TSL2561_POWER_UP = 0x03,
-    TSL2561_POWER_DOWN = 0x00
-}tsl2561_power_t;
-
 /*******************************************
  * TSL2561 public structs
  ******************************************/
