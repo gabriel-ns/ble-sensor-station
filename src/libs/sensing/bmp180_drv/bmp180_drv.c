@@ -89,10 +89,18 @@ static sensor_event_t m_last_evt;
  * Private functions prototypes
  ***********************************************/
 static void timeout_cb(void * p_ctx);
+
 static sensor_error_code_t read_callibration_data();
+
 static uint16_t get_conversion_time(bmp180_pwr_mode_t pwr_mode);
+
 static void calculate_result_values(int16_t raw_temp, uint32_t raw_pres);
+
 static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code);
+
+static sensor_error_code_t send_pressure_convert_cmd();
+
+static sensor_error_code_t read_pressure_data(uint32_t *p_raw_press_data);
 
 /***********************************************
  * Public functions implementation
@@ -119,7 +127,7 @@ sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
     err_code = read_callibration_data();
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 
-    err_code = set_pwr_mode(pwr_mode);
+    err_code = bmp180set_pwr_mode(pwr_mode);
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 
     return SENSOR_SUCCESS;
@@ -148,7 +156,7 @@ bmp180_data_t bmp180_drv_get_last_converson()
     return m_sensor_data;
 }
 
-sensor_error_code_t set_pwr_mode(bmp180_pwr_mode_t pwr_mode)
+sensor_error_code_t bmp180set_pwr_mode(bmp180_pwr_mode_t pwr_mode)
 {
     if(pwr_mode > BMP180_SHUTDOWN) return SENSOR_INVALID_PARAMETER;
 
