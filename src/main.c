@@ -18,16 +18,20 @@
 
 #include "app_config.h"
 
-
 #include "app_timer.h"
 #include "app_timer_appsh.h"
 #include "app_scheduler.h"
 #include "app_error.h"
 
-#include "nrf_gpio.h"
-#include "nrf_delay.h"
+#include "nrf_drv_twi.h"
+#include "sensor_public_interface.h"
+
+#include "bmp180_drv.h"
+#include "htu21d_drv.h"
+#include "tsl2561_drv.h"
+
 #include "softdevice_handler.h"
-#include "sensor_manager.h"
+#include "sensor_controller.h"
 #define NRF_LOG_MODULE_NAME "APP"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -70,7 +74,8 @@ int main(void)
      SOFTDEVICE_HANDLER_INIT(&lf_clock_config, NULL);
     NRF_LOG_INFO("Initializing FW\n");
     NRF_LOG_FLUSH();
-    sensor_manager_init();
+
+    sensor_controller_init();
 
     // Enter main loop.
     for (;;)

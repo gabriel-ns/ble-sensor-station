@@ -12,10 +12,10 @@ $(OUTPUT_DIRECTORY)/nrf51822_xxaa.out: \
 SRC_FILES += \
   $(PROJ_DIR)/src/main.c \
   $(PROJ_DIR)/src/libs/ble/ble_manager.c \
-  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/bmp180/nrf5-bmp180-drv.c \
-  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/htu21d/nrf5-htu21d-drv.c \
-  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/tsl2561/nrf5-tsl2561-drv.c \
-  $(PROJ_DIR)/src/libs/sensing/sensor_manager.c \
+  $(PROJ_DIR)/src/libs/sensing/bmp180_drv/bmp180_drv.c \
+  $(PROJ_DIR)/src/libs/sensing/htu21d_drv/htu21d_drv.c \
+  $(PROJ_DIR)/src/libs/sensing/tsl2561_drv/tsl2561_drv.c \
+  $(PROJ_DIR)/src/libs/sensing/sensor_controller.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
   $(SDK_ROOT)/components/ble/common/ble_advdata.c \
@@ -51,9 +51,9 @@ SRC_FILES += \
 INC_FOLDERS += \
   $(PROJ_DIR)/src/ \
   $(PROJ_DIR)/src/libs/sensing \
-  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/bmp180/ \
-  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/htu21d/ \
-  $(PROJ_DIR)/src/libs/sensing/nRF5-sensor-libs/Libs/tsl2561/ \
+  $(PROJ_DIR)/src/libs/sensing/bmp180_drv/ \
+  $(PROJ_DIR)/src/libs/sensing/htu21d_drv/ \
+  $(PROJ_DIR)/src/libs/sensing/tsl2561_drv/ \
   $(PROJ_DIR)/src/libs/ble \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/ble/ble_advertising \

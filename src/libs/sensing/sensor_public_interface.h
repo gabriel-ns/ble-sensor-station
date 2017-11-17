@@ -53,6 +53,6 @@ struct sensor_event
         sensor_type_t sensor;
         sensor_evt_type_t evt_type;
         void * p_sensor_data;
-}sensor_event_t;
+};
 
 #endif /* SRC_LIBS_SENSING_SENSOR_PUBLIC_INTERFACE_H_ */
