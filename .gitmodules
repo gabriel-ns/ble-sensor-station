@@ -1,3 +1,0 @@
-[submodule "src/libs/sensing/nRF5-sensor-libs"]
-	path = src/libs/sensing/nRF5-sensor-libs
-	url = https://github.com/gabriel-ns/nRF5-sensor-libraries.git
