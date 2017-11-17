@@ -13,7 +13,7 @@ typedef struct sensor_data
         bmp180_data_t   bmp180_data;
         htu21d_data_t   htu21d_data;
         tsl2561_data_t  tsl2561_data;
-}sensor_data_t;
+}sensor_controller_data_t;
 
 typedef struct bmp180_sc_config
 {
@@ -45,7 +45,7 @@ typedef struct sensor_controller_cfg_data
 
 void sensor_controller_init();
 
-sensor_data_t * sensor_controller_get_sensor_data_pointer();
+sensor_controller_data_t * sensor_controller_get_sensor_data_pointer();
 
 sensor_controller_cfg_data_t * sensor_controller_get_config_pointer();
 
