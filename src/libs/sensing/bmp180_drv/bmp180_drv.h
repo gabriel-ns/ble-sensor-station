@@ -49,6 +49,6 @@ sensor_error_code_t bmp180_drv_convert_data();
 
 bmp180_data_t bmp180_drv_get_last_converson();
 
-sensor_error_code_t bmp180set_pwr_mode(bmp180_pwr_mode_t pwr_mode);
+sensor_error_code_t bmp180_set_pwr_mode(bmp180_pwr_mode_t pwr_mode);
 
 #endif /* SRC_LIBS_SENSING_BMP180_DRV_BMP180_DRV_H_ */

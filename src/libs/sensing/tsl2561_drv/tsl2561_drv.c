@@ -238,7 +238,7 @@ sensor_error_code_t tsl2561_drv_begin( nrf_drv_twi_t *p_twi,
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *config = &m_sensor_config;
-    p_event_callback = (tsl2561_event_cb_t) p_event_callback;
+    p_event_callback = (tsl2561_event_cb_t) tsl2561_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));
@@ -312,11 +312,13 @@ static void timeout_cb(void * p_ctx)
     uint8_t cmd;
     sensor_error_code_t err_code;
 
+    err_code = tsl2561_drv_set_power(TSL2561_POWER_DOWN);
+
+    tsl2561_adc_data_t data = {0,0};
     cmd = TSL2561_CMD_TEMPLATE | TSL2561_REG_ADDR_DATA0L;
     err_code = nrf_drv_twi_tx(mp_twi, TSL2561_DEVICE_ADDR, &cmd, 1, true);
     if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
 
-    tsl2561_adc_data_t data = {0,0};
     err_code = nrf_drv_twi_rx(mp_twi, TSL2561_DEVICE_ADDR, (uint8_t *) &data.data0, 2);
     if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
 

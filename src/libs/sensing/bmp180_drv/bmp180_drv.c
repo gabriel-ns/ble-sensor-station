@@ -130,7 +130,7 @@ sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
     err_code = read_callibration_data();
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 
-    err_code = bmp180set_pwr_mode(pwr_mode);
+    err_code = bmp180_set_pwr_mode(pwr_mode);
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 
     return SENSOR_SUCCESS;
@@ -159,7 +159,7 @@ bmp180_data_t bmp180_drv_get_last_converson()
     return m_sensor_data;
 }
 
-sensor_error_code_t bmp180set_pwr_mode(bmp180_pwr_mode_t pwr_mode)
+sensor_error_code_t bmp180_set_pwr_mode(bmp180_pwr_mode_t pwr_mode)
 {
     if(pwr_mode > BMP180_SHUTDOWN) return SENSOR_INVALID_PARAMETER;
 

@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stddef.h>
 
+#include "nrf51.h"
 #include "app_config.h"
 
 #include "app_timer.h"
