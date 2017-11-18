@@ -114,8 +114,15 @@ CFLAGS += -DNRF51822
 CFLAGS += -DNRF_SD_BLE_API_VERSION=2
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS +=  -Wall -O3 -g3
+
+ifeq ($(DEBUG), 1)
+CFLAGS += -DDEBUG
+CFLAGS += -O0 -g3
+else
+CFLAGS +=  -Wall -Os -g3
 CFLAGS += -mfloat-abi=soft
+endif
+
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums 
