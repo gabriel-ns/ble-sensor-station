@@ -17,7 +17,7 @@
 
 #ifndef SENSOR_MANAGER_H__
 #define SENSOR_MANAGER_H__
-
+#if 0
 #include "app_config.h"
 #include "nrf_drv_twi.h"
 #include "nrf5-bmp180-drv.h"
@@ -95,4 +95,5 @@ int32_t sensor_manager_last_get_pressure();
 
 int32_t sensor_manager_last_get_luminosity();
 
+#endif
 #endif /** SENSOR_MANAGER_H__ */
