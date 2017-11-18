@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "app_config.h"
 #include "app_timer.h"
 #include "nrf_drv_twi.h"
 
@@ -263,8 +264,9 @@ sensor_error_code_t tsl2561_drv_convert_data()
 
     uint16_t conversion_time = get_conversion_time(m_sensor_config.int_time);
 
-    //TODO app timer prescaler
-    err_code = app_timer_start(m_tsl2561_internal_timer, APP_TIMER_TICKS(conversion_time, 0) , NULL );
+    err_code = app_timer_start(m_tsl2561_internal_timer,
+            APP_TIMER_TICKS(conversion_time, APP_TIMER_PRESCALER),
+            NULL );
     SENSOR_TIMER_ERROR_CHECK(err_code);
 
     return SENSOR_SUCCESS;
@@ -312,8 +314,6 @@ static void timeout_cb(void * p_ctx)
     uint8_t cmd;
     sensor_error_code_t err_code;
 
-    err_code = tsl2561_drv_set_power(TSL2561_POWER_DOWN);
-
     tsl2561_adc_data_t data = {0,0};
     cmd = TSL2561_CMD_TEMPLATE | TSL2561_REG_ADDR_DATA0L;
     err_code = nrf_drv_twi_tx(mp_twi, TSL2561_DEVICE_ADDR, &cmd, 1, true);
@@ -327,6 +327,9 @@ static void timeout_cb(void * p_ctx)
     if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
 
     err_code = nrf_drv_twi_rx(mp_twi, TSL2561_DEVICE_ADDR, (uint8_t *) &data.data1, 2);
+    if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
+
+    err_code = tsl2561_drv_set_power(TSL2561_POWER_DOWN);
     if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
 
     calculate_lux(data);

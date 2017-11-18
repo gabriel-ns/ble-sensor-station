@@ -102,7 +102,7 @@ sensor_error_code_t htu21d_drv_begin(nrf_drv_twi_t *p_twi,
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *p_p_res = &m_sensor_resolution;
-    p_event_callback = (htu21d_event_cb_t) p_event_callback;
+    p_event_callback = (htu21d_event_cb_t) htu21d_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));

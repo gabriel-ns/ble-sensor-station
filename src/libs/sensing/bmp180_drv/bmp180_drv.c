@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "app_config.h"
 #include "nrf_drv_twi.h"
 
 #include "app_timer.h"
@@ -147,8 +148,9 @@ sensor_error_code_t bmp180_drv_convert_data()
 
     uint16_t conversion_time = get_conversion_time(m_pwr_mode);
 
-    //TODO app timer prescaler
-    err_code = app_timer_start(m_bmp180_internal_timer, APP_TIMER_TICKS(conversion_time, 0) , bmp180_drv_convert_data);
+    err_code = app_timer_start(m_bmp180_internal_timer,
+            APP_TIMER_TICKS(conversion_time, APP_TIMER_PRESCALER),
+            bmp180_drv_convert_data);
     SENSOR_TIMER_ERROR_CHECK(err_code);
 
     return SENSOR_SUCCESS;
@@ -214,8 +216,9 @@ static sensor_error_code_t send_pressure_convert_cmd()
 
     uint16_t conversion_time = get_conversion_time(m_pwr_mode);
 
-    //TODO app timer prescaler
-    err_code = app_timer_start(m_bmp180_internal_timer, APP_TIMER_TICKS(conversion_time, 0) , send_pressure_convert_cmd );
+    err_code = app_timer_start(m_bmp180_internal_timer,
+            APP_TIMER_TICKS(conversion_time, APP_TIMER_PRESCALER),
+            send_pressure_convert_cmd );
     SENSOR_TIMER_ERROR_CHECK(err_code);
 
     return SENSOR_SUCCESS;
