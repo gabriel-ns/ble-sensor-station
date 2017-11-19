@@ -1,0 +1,5 @@
+/**
+ * @defgroup BLE Bluetooth
+ * @defgroup SERVICES Bluetooth Services
+ * @defgroup ADVERTISING Bluetooth Advertising
+ */

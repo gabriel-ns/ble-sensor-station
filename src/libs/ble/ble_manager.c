@@ -1,8 +1,6 @@
-/*
- * ble_manager.c
+/**
+ * @file ble_manager.c
  *
- *  Created on: 26 de ago de 2017
- *      Author: Gabriel
  */
 
 #include <stddef.h>

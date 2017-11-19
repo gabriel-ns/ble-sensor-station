@@ -10,6 +10,64 @@
  * \n UNIVERSIDADE FEDERAL DO ABC
  * \n Curso: Engenharia de Instrumentação, Automação e Robótica
  * \n Projeto: Desenvolvimento de rede de sensores bluetooth conectados à nuvem
+ * \n\n Desenvolvido durante as disciplinas de Trabalho de Graduação 1, 2 e 3 do curso.
+ */
+
+/**
+ * @mainpage Bluetooth Low Energy Sensor Station
+ *
+ * \n UNIVERSIDADE FEDERAL DO ABC
+ * \n Curso: Engenharia de Instrumentação, Automação e Robótica
+ * \n Projeto: Desenvolvimento de rede de sensores bluetooth conectados à nuvem
+ * \n\n Desenvolvido durante as disciplinas de Trabalho de Graduação 1, 2 e 3 do curso.
+ *
+ * \dot
+ * digraph Architecture{
+ * label="Red line: Data flow\nBlue lines: Command flow\nGreen lines:Configuration flow"
+ * App [shape=box, label=Application]
+ * ADVCfg [label="Advertising \n Configuration \n Service"]
+ * ADVCtrl [label="Advertising \n Controller"]
+ * ADVEnc [label="Advertising\nframe\nencoder"]
+ * BLEMan [label="Bluetooth Manager"]
+ * BMPDrv [label="BMP180\ndriver"]
+ * HTUDrv [label="HTU21D\ndriver"]
+ * SC [label="Sensor Controller"]
+ * SDKTWI [label="SDK I2C\ndriver"]
+ * SDRadio [label="Softdevice\nRadio"]
+ * SensSvc [label="Sensor\nconfig\nservice"]
+ * TSLDrv [label="TSL2561\ndriver"]
+ *
+ * App -> SC [color=blue]
+ * ADVCfg -> ADVCtrl [color=green]
+ * ADVCfg -> ADVCtrl [color=red]
+ * ADVCtrl -> ADVEnc [color=blue]
+ * ADVCtrl -> SDRadio [color=blue]
+ * ADVCtrl -> SDRadio [color=red]
+ * ADVEnc -> ADVCtrl [color=red]
+ * App -> BLEMan [color=blue]
+ * BLEMan -> ADVCfg [color=blue]
+ * BLEMan -> ADVCtrl [color=blue]
+ * BLEMan -> SensSvc [color=blue]
+ * BMPDrv -> SC [color=red]
+ * BMPDrv -> SDKTWI [color=blue]
+ * HTUDrv -> SC [color=red]
+ * HTUDrv -> SDKTWI [color=blue]
+ * SC -> ADVCtrl [color=red]
+ * SC -> BMPDrv [color=blue]
+ * SC -> BMPDrv [color=green]
+ * SC -> HTUDrv [color=blue]
+ * SC -> HTUDrv [color=green]
+ * SC -> SensSvc [color=green, dir=both]
+ * SC -> SensSvc [color=red]
+ * SC -> TSLDrv [color=blue]
+ * SC -> TSLDrv [color=green]
+ * SDKTWI -> BMPDrv [color=red]
+ * SDKTWI -> HTUDrv [color=red]
+ * SDKTWI -> TSLDrv [color=red]
+ * TSLDrv -> SC [color=red]
+ * TSLDrv -> SDKTWI [color=blue]
+ * }
+ * \enddot
  */
 
 #include <stdbool.h>
@@ -42,12 +100,7 @@
 /**
  * @brief Function for doing power management.
  */
-static void power_manage(void)
-{
-     ret_code_t err_code = sd_app_evt_wait();
-     APP_ERROR_CHECK(err_code);
-}
-
+static void power_manage(void);
 
 /**
  * @brief Function for application main entry.
@@ -86,5 +139,11 @@ int main(void)
         power_manage();
         NRF_LOG_FLUSH();
     }
+}
+
+static void power_manage(void)
+{
+     ret_code_t err_code = sd_app_evt_wait();
+     APP_ERROR_CHECK(err_code);
 }
 
