@@ -90,6 +90,8 @@
 #include "htu21d_drv.h"
 #include "tsl2561_drv.h"
 
+#include "ble_manager.h"
+
 #include "softdevice_handler.h"
 #include "sensor_controller.h"
 #define NRF_LOG_MODULE_NAME "APP"
@@ -131,6 +133,7 @@ int main(void)
     NRF_LOG_FLUSH();
 
     sensor_controller_init();
+    ble_manager_init();
 
     // Enter main loop.
     for (;;)
