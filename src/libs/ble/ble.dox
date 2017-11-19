@@ -1,5 +1,5 @@
 /**
  * @defgroup BLE Bluetooth
- * @defgroup SERVICES Bluetooth Services
+ * @defgroup APSS Air Pressure Sensor Service
  * @defgroup ADVERTISING Bluetooth Advertising
  */

@@ -1,3 +1,6 @@
 /**
- * @defgroup SENSING Sensing Module
+ * @defgroup SENSING Sensor Controller
+ * @defgroup BMP180_DRV BMP180 Sensor Driver
+ * @defgroup HTU21D_DRV HTU21D Sensor Driver
+ * @defgroup TSL2561_DRV TSL2561 Sensor Driver
  */
