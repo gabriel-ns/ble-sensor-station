@@ -44,10 +44,10 @@ struct ble_apss
         uint16_t                    conn_handle;              /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection).*/
         uint16_t                    service_handle;           /**< Handle of Air Pressure Sensor Service (as provided by the BLE stack). */
         ble_gatts_char_handles_t    sensing_interval_handle;  /**< Handle of Sensing Interval Characteristic. */
-        ble_gatts_char_handles_t    sensor_status_handle;     /**< Handle of Sensing Interval Characteristic. */
-        ble_gatts_char_handles_t    sensor_resolution_handle; /**< Handle of Sensing Interval Characteristic. */
-        ble_gatts_char_handles_t    pressure_data_handle;     /**< Handle of Sensing Interval Characteristic. */
-        ble_gatts_char_handles_t    temperature_data_handle;  /**< Handle of Sensing Interval Characteristic. */
+        ble_gatts_char_handles_t    sensor_status_handle;     /**< Handle of Sensor Status Characteristic. */
+        ble_gatts_char_handles_t    sensor_resolution_handle; /**< Handle of Sensor Resolution Characteristic. */
+        ble_gatts_char_handles_t    pressure_data_handle;     /**< Handle of Pressure Data Characteristic. */
+        ble_gatts_char_handles_t    temperature_data_handle;  /**< Handle of Temperature Data Characteristic. */
         bmp180_sc_config_t          *p_sensor_config;         /**< Pointer to BMP180 sensor configuration. */
         bmp180_data_t               *p_sensor_data;           /**< Pointer to BMP180 sensor data */
 };

@@ -1,5 +1,9 @@
 /**
  * @defgroup BLE Bluetooth
  * @defgroup APSS Air Pressure Sensor Service
+ * @{ 
+ * @brief Module responsible for APSS functionalities.
+ *  
+ * @}
  * @defgroup ADVERTISING Bluetooth Advertising
  */
