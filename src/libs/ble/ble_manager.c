@@ -1,6 +1,12 @@
 /**
  * @file ble_manager.c
+ * @brief The Bluetooth Manager module starts the BLE Stack, the Bluetooth Services and the Bluetooth Advertising.
+ * @author Gabriel Nascimento dos Santos
  *
+ * \n UNIVERSIDADE FEDERAL DO ABC
+ * \n Curso: Engenharia de Instrumentação, Automação e Robótica
+ * \n Projeto: Desenvolvimento de rede de sensores bluetooth conectados à nuvem
+ * \n\n Desenvolvido durante as disciplinas de Trabalho de Graduação 1, 2 e 3 do curso.
  */
 
 #include <stddef.h>
@@ -17,17 +23,36 @@
 #include "nrf51.h"
 #include "crc32.h"
 
+#include "nrf_drv_twi.h"
+#include "sensor_public_interface.h"
+#include "bmp180_drv.h"
+#include "htu21d_drv.h"
+#include "tsl2561_drv.h"
+#include "sensor_controller.h"
+
+#include "ble_advdata.h"
+#include "ble_advertising.h"
+#include "ble_apss.h"
+
+static ble_apss_t m_ble_apss;
+
 static void gap_params_init(void);
 static void ble_stack_init(void);
 static void conn_params_init(void);
-static void deviceid_ble_mac_addr_get(uint8_t *device_addr);
-
+static void ble_mac_addr_get(uint8_t *device_addr);
+static void advertising_init();
+static void advertising_start();
+static void advertising_stop();
 
 void ble_manager_init()
 {
     ble_stack_init();
     gap_params_init();
     conn_params_init();
+
+    advertising_init();
+
+    ble_apss_init(&m_ble_apss);
 }
 
 static void gap_params_init()
@@ -37,7 +62,7 @@ static void gap_params_init()
     ble_gap_conn_params_t gap_conn_params;
     ble_gap_conn_sec_mode_t sec_mode;
 
-    uint8_t device_name[] = "TESTE0001";
+    uint8_t device_name[] = "UFABC001";
 
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
@@ -46,7 +71,7 @@ static void gap_params_init()
             strlen((const char *)device_name));
     APP_ERROR_CHECK(err_code);
 
-    deviceid_ble_mac_addr_get(device_addr.addr);
+    ble_mac_addr_get(device_addr.addr);
     device_addr.addr_type = BLE_GAP_ADDR_TYPE_PUBLIC;
 
     err_code = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &device_addr);
@@ -97,16 +122,16 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     ble_conn_params_on_ble_evt(p_ble_evt);
 
-//    ble_stcs_on_ble_evt(&m_stcs, p_ble_evt);
+    ble_apss_on_ble_evt(&m_ble_apss, p_ble_evt);
 
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-//            advertising_stop();
+            advertising_stop();
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-//            advertising_start();
+            advertising_start();
             break;
 
         default:
@@ -158,7 +183,7 @@ static void ble_stack_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-static void deviceid_ble_mac_addr_get(uint8_t *device_addr)
+static void ble_mac_addr_get(uint8_t *device_addr)
 {
     uint32_t device_id[2];
 
@@ -176,4 +201,39 @@ static void deviceid_ble_mac_addr_get(uint8_t *device_addr)
     device_addr[5] = (device_id[1] >> 1 * 8) & 0xFF;
     // two most significant bits of last byte must be 1's
     device_addr[5] |= 0xC0;
+}
+
+ble_gap_adv_params_t m_adv_params;
+
+static void advertising_init()
+{
+
+    memset(&m_adv_params, 0, sizeof(m_adv_params));
+    m_adv_params.type = BLE_GAP_ADV_TYPE_ADV_IND;
+    m_adv_params.p_peer_addr = NULL;                             // Undirected advertisement.
+    m_adv_params.fp = BLE_GAP_ADV_FP_ANY;
+    m_adv_params.interval = MSEC_TO_UNITS(625, UNIT_0_625_MS);
+    m_adv_params.timeout = APP_CFG_CONNECTABLE_ADV_TIMEOUT;
+
+    uint32_t err_code;
+    err_code = sd_ble_gap_adv_start(&m_adv_params);
+    APP_ERROR_CHECK(err_code);
+
+}
+static void advertising_start()
+{
+    uint32_t err_code = sd_ble_gap_adv_start(&m_adv_params);
+    if (err_code != NRF_ERROR_BUSY && err_code != NRF_ERROR_CONN_COUNT)
+    {
+        APP_ERROR_CHECK(err_code);
+    }
+}
+static void advertising_stop()
+{
+    uint32_t err_code = sd_ble_gap_adv_stop();
+
+    if (err_code != NRF_ERROR_INVALID_STATE)
+    {
+        APP_ERROR_CHECK(err_code);
+    }
 }
