@@ -32,8 +32,11 @@
 
 #include "ble_advdata.h"
 #include "ble_advertising.h"
+
+#include "ble_thss.h"
 #include "ble_apss.h"
 
+static ble_thss_t m_ble_thss;
 static ble_apss_t m_ble_apss;
 
 static void gap_params_init(void);
@@ -53,6 +56,7 @@ void ble_manager_init()
     advertising_init();
 
     ble_apss_init(&m_ble_apss);
+    ble_thss_init(&m_ble_thss);
 }
 
 static void gap_params_init()
