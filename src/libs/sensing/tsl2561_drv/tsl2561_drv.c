@@ -28,7 +28,7 @@
 
 
 #define TSL2561_LUX_SCALE         (14)      // Scale by 2^14
-#define TSL2561_RATIO_SCALE   (9)       // Scale ratio by 2^9
+#define TSL2561_RATIO_SCALE       (9)       // Scale ratio by 2^9
 
 //−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
 // Integration time scaling factors

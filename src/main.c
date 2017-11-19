@@ -1,16 +1,17 @@
-/*********************************
- * File: main.c
- *********************************
- * File description: Initialize all modules.
+/** @file main.c
+ * @brief Initialize all modules.
+ * @author Gabriel Nascimento dos Santos
  *
+ * The main starts the Sensing Module, the Advertising cotroller and the BLE Services.
+ * \n In addition, the application scheduler, application timer and the low frequency clock are also set by the main.
+ * \n This device will be interrupt driven, so the microcontroller will be in sleep state
+ * until some interrupt (radio or timer) wake it up to perform a task and sleep again.
  *
- * UNIVERSIDADE FEDERAL DO ABC
- * Aluno: Gabriel Nascimento dos Santos
- * Curso: Engenharia de Instrumentação, Automação e Robótica
- *
- * Projeto: DESENVOLVIMENTO DE REDE DE SENSORES BLUETOOTH LOW ENERGY CONECTADOS À NUVEM
- * 
+ * \n UNIVERSIDADE FEDERAL DO ABC
+ * \n Curso: Engenharia de Instrumentação, Automação e Robótica
+ * \n Projeto: Desenvolvimento de rede de sensores bluetooth conectados à nuvem
  */
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -39,7 +40,7 @@
 
 
 /**
- * \brief Function for doing power management.
+ * @brief Function for doing power management.
  */
 static void power_manage(void)
 {
@@ -49,7 +50,7 @@ static void power_manage(void)
 
 
 /**
- * \brief Function for application main entry.
+ * @brief Function for application main entry.
  */
 int main(void)
 {

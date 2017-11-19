@@ -52,3 +52,4 @@ Mkfile.old
 _build/*
 dkms.conf
 .settings/*
+_doc/*
