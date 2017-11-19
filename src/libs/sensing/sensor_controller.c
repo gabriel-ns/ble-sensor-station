@@ -82,7 +82,7 @@ void sensor_controller_init()
     err_code = app_timer_create(&m_pressure_timer, APP_TIMER_MODE_SINGLE_SHOT, pressure_timer_callback);
     APP_ERROR_CHECK(err_code);
 
-    m_sc_cfg_data.bmp_cfg.state = SENSOR_OFF;
+    m_sc_cfg_data.bmp_cfg.state = SENSOR_ACTIVE;
     m_sc_cfg_data.bmp_cfg.sampling_interval = PRESSURE_DEFAULT_SAMPLING_INTERVAL;
 
     err_code = bmp180_drv_begin(&m_twi,
@@ -167,26 +167,41 @@ sensor_error_code_t sensor_controller_set_bmp_pwr_mode(bmp180_pwr_mode_t pwr_mod
 
 sensor_error_code_t sensor_controller_set_sensor_sampling_interval(sensor_type_t sensor, uint32_t interval)
 {
+    sensor_error_code_t err_code;
     switch(sensor)
     {
         case SENSOR_BMP180:
-            app_timer_stop(m_pressure_timer);
+            err_code = app_timer_stop(m_pressure_timer);
             m_sc_cfg_data.bmp_cfg.sampling_interval = interval;
             pressure_timer_callback(NULL);
             break;
         case SENSOR_TSL2561:
-            app_timer_stop(m_luminosity_timer);
+            err_code = app_timer_stop(m_luminosity_timer);
             m_sc_cfg_data.bmp_cfg.sampling_interval = interval;
             luminosity_timer_callback(NULL);
             break;
+        case SENSOR_HTU21D:
+            err_code = app_timer_stop(m_temp_hum_timer);
+            m_sc_cfg_data.htu_cfg.sampling_interval = interval;
+            temp_hum_timer_callback(NULL);
+            break;
         default:
+            return SENSOR_INVALID_PARAMETER;
             break;
     }
+    SENSOR_TIMER_ERROR_CHECK(err_code);
     return SENSOR_SUCCESS;
 }
 
 sensor_error_code_t sensor_controller_set_sensor_state(sensor_type_t sensor, sensor_state_t state)
 {
+    if(state != SENSOR_ACTIVE &&
+            state != SENSOR_ERROR &&
+            state != SENSOR_OFF)
+    {
+        return SENSOR_INVALID_PARAMETER;
+    }
+
     switch(sensor)
     {
         case SENSOR_BMP180:
@@ -195,7 +210,11 @@ sensor_error_code_t sensor_controller_set_sensor_state(sensor_type_t sensor, sen
         case SENSOR_TSL2561:
             m_sc_cfg_data.tsl_cfg.state = state;
             break;
+        case SENSOR_HTU21D:
+            m_sc_cfg_data.htu_cfg.state = state;
+            break;
         default:
+            return SENSOR_INVALID_PARAMETER;
             break;
     }
     return SENSOR_SUCCESS;
