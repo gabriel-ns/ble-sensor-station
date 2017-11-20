@@ -53,7 +53,14 @@ static void on_write(ble_apss_t *p_apss, ble_evt_t *p_ble_evt);
  */
 static uint32_t on_rw_authorize_req(ble_apss_t *p_apss, ble_evt_t *p_ble_evt);
 
-static void ble_apss_notify(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt);
+/**
+ * @brief Pushes the new sensor value to the BLE client
+ *
+ * @param p_apss        Pointer to the application APSS Service structure.
+ * @param p_sensor_evt  Pointer to the event received from sensor controller.
+ */
+static void ble_apss_notify(ble_apss_t *p_apss, sensor_event_t *p_sensor_evt);
+
 /**
  * @brief Function that initializes the Sensing Interval Characteristic.
  *

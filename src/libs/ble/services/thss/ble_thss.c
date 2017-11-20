@@ -53,6 +53,14 @@ static void on_write(ble_thss_t *p_thss, ble_evt_t *p_ble_evt);
 static uint32_t on_rw_authorize_req(ble_thss_t *p_thss, ble_evt_t *p_ble_evt);
 
 /**
+ * @brief Pushes the new sensor value to the BLE client
+ *
+ * @param p_thss        Pointer to the application THSS Service structure.
+ * @param p_sensor_evt  Pointer to the event received from sensor controller.
+ */
+static void ble_thss_notify(ble_thss_t *p_thss, sensor_event_t *p_sensor_evt);
+
+/**
  * @brief Function that initializes the Sensing Interval Characteristic.
  *
  * @param p_thss    Pointer to the application THSS Service structure.
@@ -108,6 +116,15 @@ uint32_t ble_thss_on_ble_evt(ble_thss_t * p_thss, ble_evt_t * p_ble_evt)
                 break;
         }
         return NRF_SUCCESS;
+}
+
+void ble_thss_on_sensor_evt(ble_thss_t *p_thss, sensor_event_t *p_sensor_evt)
+{
+    if(p_sensor_evt->sensor == SENSOR_HTU21D &&
+            p_thss->conn_handle != BLE_CONN_HANDLE_INVALID)
+    {
+        ble_thss_notify(p_thss, p_sensor_evt);
+    }
 }
 
 void ble_thss_init(ble_thss_t * p_thss)
@@ -262,6 +279,32 @@ static uint32_t on_rw_authorize_req(ble_thss_t *p_thss, ble_evt_t *p_ble_evt)
     }
 
     return NRF_SUCCESS;
+}
+
+static void ble_thss_notify(ble_thss_t *p_thss, sensor_event_t *p_sensor_evt)
+{
+    uint16_t               len = sizeof(p_thss->p_sensor_data->temperature);
+    ble_gatts_hvx_params_t hvx_params;
+    memset(&hvx_params, 0, sizeof(hvx_params));
+
+    /* Notify the temperature data */
+    hvx_params.handle = p_thss->temperature_data_handle.value_handle;
+    hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+    hvx_params.offset = 0;
+    hvx_params.p_len  = &len;
+    hvx_params.p_data = (uint8_t*)&p_thss->p_sensor_data->temperature;
+
+    sd_ble_gatts_hvx(p_thss->conn_handle, &hvx_params);
+
+    /* Notify the pressure data */
+    len = sizeof(p_thss->p_sensor_data->humidity);
+
+    hvx_params.handle = p_thss->humidity_data_handle.value_handle;
+    hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+    hvx_params.offset = 0;
+    hvx_params.p_len  = &len;
+    hvx_params.p_data = (uint8_t*)&p_thss->p_sensor_data->humidity;
+    sd_ble_gatts_hvx(p_thss->conn_handle, &hvx_params);
 }
 
 static void ble_thss_sensing_interval_init(ble_thss_t *p_thss)
@@ -441,6 +484,14 @@ static void ble_thss_temperature_data_init(ble_thss_t *p_thss)
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
 
+    ble_gatts_attr_md_t cccd_md;
+    memset(&cccd_md, 0, sizeof(cccd_md));
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+    cccd_md.vloc                = BLE_GATTS_VLOC_STACK;
+    char_md.p_cccd_md           = &cccd_md;
+    char_md.char_props.notify   = 1;
+
     //Configure the characteristic value attribute
     ble_gatts_attr_t attr_char_value;
     memset(&attr_char_value, 0, sizeof(attr_char_value));
@@ -488,6 +539,14 @@ static void ble_thss_humidity_data_init(ble_thss_t *p_thss)
     //Set read/write security levels to our characteristic
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
+
+    ble_gatts_attr_md_t cccd_md;
+    memset(&cccd_md, 0, sizeof(cccd_md));
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+    cccd_md.vloc                = BLE_GATTS_VLOC_STACK;
+    char_md.p_cccd_md           = &cccd_md;
+    char_md.char_props.notify   = 1;
 
     //Configure the characteristic value attribute
     ble_gatts_attr_t attr_char_value;
