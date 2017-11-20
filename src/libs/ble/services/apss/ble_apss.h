@@ -53,11 +53,18 @@ struct ble_apss
 };
 
 /**
- * @brief Callback called when receiving a BLE event.
+ * @brief Function called when receiving a BLE event.
  * @param p_apss    Pointer to Service Structure
  * @param p_ble_evt Pointer to BLE event that caused the call * @return
  */
 uint32_t ble_apss_on_ble_evt(ble_apss_t * p_apss, ble_evt_t * p_ble_evt);
+
+/**
+ * @brief Function called when receiving a Sensor Event
+ * @param p_apss        Pointer to Service Structure
+ * @param p_sensor_evt  Pointer to the sensor event
+ */
+void ble_apss_on_sensor_evt(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt);
 
 /**
  * @brief Function for initializing Air Pressure Sensor Service.
@@ -65,6 +72,7 @@ uint32_t ble_apss_on_ble_evt(ble_apss_t * p_apss, ble_evt_t * p_ble_evt);
  * @param[in]   p_apss       Pointer to Service structure.
  */
 void ble_apss_init(ble_apss_t * p_apss);
+
 
 #endif /* _BLE_APSS_H_ */
 /**

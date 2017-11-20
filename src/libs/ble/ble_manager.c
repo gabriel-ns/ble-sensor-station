@@ -47,6 +47,8 @@ static void advertising_init();
 static void advertising_start();
 static void advertising_stop();
 
+static void sensor_evt_dispatch(sensor_event_t *p_sensor_evt);
+
 void ble_manager_init()
 {
     ble_stack_init();
@@ -57,6 +59,13 @@ void ble_manager_init()
 
     ble_apss_init(&m_ble_apss);
     ble_thss_init(&m_ble_thss);
+
+    sensor_controller_event_subscribe(sensor_evt_dispatch);
+}
+
+static void sensor_evt_dispatch(sensor_event_t *p_sensor_evt)
+{
+    ble_apss_on_sensor_evt(&m_ble_apss, p_sensor_evt);
 }
 
 static void gap_params_init()

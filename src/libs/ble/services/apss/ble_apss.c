@@ -53,6 +53,7 @@ static void on_write(ble_apss_t *p_apss, ble_evt_t *p_ble_evt);
  */
 static uint32_t on_rw_authorize_req(ble_apss_t *p_apss, ble_evt_t *p_ble_evt);
 
+static void ble_apss_notify(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt);
 /**
  * @brief Function that initializes the Sensing Interval Characteristic.
  *
@@ -94,21 +95,30 @@ static void ble_apss_temperature_data_init(ble_apss_t *p_apss);
 uint32_t ble_apss_on_ble_evt(ble_apss_t * p_apss, ble_evt_t * p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
-        {
-            case BLE_GAP_EVT_CONNECTED:
-                p_apss->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-                break;
-            case BLE_GAP_EVT_DISCONNECTED:
-                p_apss->conn_handle = BLE_CONN_HANDLE_INVALID;
-                break;
-            case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-                on_rw_authorize_req(p_apss,p_ble_evt);
-                break;
-            default:
-                // No implementation needed.
-                break;
-        }
-        return NRF_SUCCESS;
+    {
+        case BLE_GAP_EVT_CONNECTED:
+            p_apss->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+            break;
+        case BLE_GAP_EVT_DISCONNECTED:
+            p_apss->conn_handle = BLE_CONN_HANDLE_INVALID;
+            break;
+        case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+            on_rw_authorize_req(p_apss,p_ble_evt);
+            break;
+        default:
+            // No implementation needed.
+            break;
+    }
+    return NRF_SUCCESS;
+}
+
+void ble_apss_on_sensor_evt(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt)
+{
+    if(p_sensor_evt->sensor == SENSOR_BMP180 &&
+            p_apss->conn_handle != BLE_CONN_HANDLE_INVALID)
+    {
+        ble_apss_notify(p_apss, p_sensor_evt);
+    }
 }
 
 void ble_apss_init(ble_apss_t * p_apss)
@@ -152,96 +162,96 @@ void ble_apss_init(ble_apss_t * p_apss)
 static void on_write(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
 {
     ret_code_t err_code;
-        ble_gatts_rw_authorize_reply_params_t reply;
+    ble_gatts_rw_authorize_reply_params_t reply;
 
-        // Initialize reply.
-        reply.type = BLE_GATTS_AUTHORIZE_TYPE_WRITE;
-        reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
-        reply.params.write.update = 1;
-        reply.params.write.offset = 0;
-        reply.params.write.len = 0;
-        reply.params.write.p_data = NULL;
+    // Initialize reply.
+    reply.type = BLE_GATTS_AUTHORIZE_TYPE_WRITE;
+    reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
+    reply.params.write.update = 1;
+    reply.params.write.offset = 0;
+    reply.params.write.len = 0;
+    reply.params.write.p_data = NULL;
 
-        // Write to appropriate characteristic.
-        ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.authorize_request.request.write;
+    // Write to appropriate characteristic.
+    ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.authorize_request.request.write;
 
 
-        if(p_evt_write->handle == p_apss->sensing_interval_handle.value_handle)
+    if(p_evt_write->handle == p_apss->sensing_interval_handle.value_handle)
+    {
+        uint32_t new_interval = *((uint32_t *) p_evt_write->data);
+
+        uint32_t err_code;
+        err_code = sensor_controller_set_sensor_sampling_interval(SENSOR_BMP180, new_interval);
+
+        if(err_code == SENSOR_SUCCESS)
         {
-            uint32_t new_interval = *((uint32_t *) p_evt_write->data);
-
-            uint32_t err_code;
-            err_code = sensor_controller_set_sensor_sampling_interval(SENSOR_BMP180, new_interval);
-
-            if(err_code == SENSOR_SUCCESS)
-            {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(p_apss->p_sensor_config->sampling_interval);
-                reply.params.write.p_data = (uint8_t *) (&p_apss->p_sensor_config->sampling_interval);
-            }
-            else
-            {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
-                reply.params.write.len = 0;
-                reply.params.write.p_data = NULL;
-            }
-        }
-
-        else if(p_evt_write->handle == p_apss->sensor_status_handle.value_handle)
-        {
-            sensor_state_t new_state = *((sensor_state_t *) p_evt_write->data);
-
-            uint32_t err_code;
-            err_code = sensor_controller_set_sensor_state(SENSOR_BMP180, new_state);
-
-            if(err_code == SENSOR_SUCCESS)
-            {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(p_apss->p_sensor_config->state);
-                reply.params.write.p_data = (uint8_t *) (&p_apss->p_sensor_config->state);
-            }
-            else
-            {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
-                reply.params.write.len = 0;
-                reply.params.write.p_data = NULL;
-            }
-        }
-        else if(p_evt_write->handle == p_apss->sensor_resolution_handle.value_handle)
-        {
-            bmp180_pwr_mode_t pwr_mode = *((bmp180_pwr_mode_t *) p_evt_write->data);
-
-            uint32_t err_code;
-            err_code = sensor_controller_set_bmp_pwr_mode(pwr_mode);
-
-            if(err_code == SENSOR_SUCCESS)
-            {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(*p_apss->p_sensor_config->p_pwr_mode);
-                reply.params.write.p_data = (uint8_t *) (p_apss->p_sensor_config->p_pwr_mode);
-            }
-            else
-            {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
-                reply.params.write.len = 0;
-                reply.params.write.p_data = NULL;
-            }
+            reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
+            reply.params.write.len = sizeof(p_apss->p_sensor_config->sampling_interval);
+            reply.params.write.p_data = (uint8_t *) (&p_apss->p_sensor_config->sampling_interval);
         }
         else
         {
-            // Return without replying. This event is not relevant for this service.
-            return;
+            reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
+            reply.params.write.len = 0;
+            reply.params.write.p_data = NULL;
         }
+    }
 
-        // Send write reply.
-        if (p_apss->conn_handle != BLE_CONN_HANDLE_INVALID )
+    else if(p_evt_write->handle == p_apss->sensor_status_handle.value_handle)
+    {
+        sensor_state_t new_state = *((sensor_state_t *) p_evt_write->data);
+
+        uint32_t err_code;
+        err_code = sensor_controller_set_sensor_state(SENSOR_BMP180, new_state);
+
+        if(err_code == SENSOR_SUCCESS)
         {
-            err_code = sd_ble_gatts_rw_authorize_reply(p_apss->conn_handle, &reply);
-            if (err_code != NRF_SUCCESS)
-            {
-                APP_ERROR_CHECK(err_code);
-            }
+            reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
+            reply.params.write.len = sizeof(p_apss->p_sensor_config->state);
+            reply.params.write.p_data = (uint8_t *) (&p_apss->p_sensor_config->state);
         }
+        else
+        {
+            reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
+            reply.params.write.len = 0;
+            reply.params.write.p_data = NULL;
+        }
+    }
+    else if(p_evt_write->handle == p_apss->sensor_resolution_handle.value_handle)
+    {
+        bmp180_pwr_mode_t pwr_mode = *((bmp180_pwr_mode_t *) p_evt_write->data);
+
+        uint32_t err_code;
+        err_code = sensor_controller_set_bmp_pwr_mode(pwr_mode);
+
+        if(err_code == SENSOR_SUCCESS)
+        {
+            reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
+            reply.params.write.len = sizeof(*p_apss->p_sensor_config->p_pwr_mode);
+            reply.params.write.p_data = (uint8_t *) (p_apss->p_sensor_config->p_pwr_mode);
+        }
+        else
+        {
+            reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
+            reply.params.write.len = 0;
+            reply.params.write.p_data = NULL;
+        }
+    }
+    else
+    {
+        // Return without replying. This event is not relevant for this service.
+        return;
+    }
+
+    // Send write reply.
+    if (p_apss->conn_handle != BLE_CONN_HANDLE_INVALID )
+    {
+        err_code = sd_ble_gatts_rw_authorize_reply(p_apss->conn_handle, &reply);
+        if (err_code != NRF_SUCCESS)
+        {
+            APP_ERROR_CHECK(err_code);
+        }
+    }
 }
 
 /**
@@ -253,7 +263,7 @@ static void on_write(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
 static uint32_t on_rw_authorize_req(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
 {
     if (p_ble_evt->evt.gatts_evt.params.authorize_request.type ==
-             BLE_GATTS_AUTHORIZE_TYPE_WRITE)
+            BLE_GATTS_AUTHORIZE_TYPE_WRITE)
     {
         on_write(p_apss, p_ble_evt);
     }
@@ -263,6 +273,32 @@ static uint32_t on_rw_authorize_req(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
     }
 
     return NRF_SUCCESS;
+}
+
+static void ble_apss_notify(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt)
+{
+    uint16_t               len = sizeof(p_apss->p_sensor_data->temperature);
+    ble_gatts_hvx_params_t hvx_params;
+    memset(&hvx_params, 0, sizeof(hvx_params));
+
+    /* Notify the temperature data */
+    hvx_params.handle = p_apss->temperature_data_handle.value_handle;
+    hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+    hvx_params.offset = 0;
+    hvx_params.p_len  = &len;
+    hvx_params.p_data = (uint8_t*)&p_apss->p_sensor_data->temperature;
+
+    sd_ble_gatts_hvx(p_apss->conn_handle, &hvx_params);
+
+    /* Notify the pressure data */
+    len = sizeof(p_apss->p_sensor_data->pressure);
+
+    hvx_params.handle = p_apss->pressure_data_handle.value_handle;
+    hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+    hvx_params.offset = 0;
+    hvx_params.p_len  = &len;
+    hvx_params.p_data = (uint8_t*)&p_apss->p_sensor_data->pressure;
+    sd_ble_gatts_hvx(p_apss->conn_handle, &hvx_params);
 }
 
 static void ble_apss_sensing_interval_init(ble_apss_t *p_apss)
@@ -318,51 +354,51 @@ static void ble_apss_sensing_interval_init(ble_apss_t *p_apss)
 static void ble_apss_sensor_status_init(ble_apss_t *p_apss)
 {
     uint32_t            err_code;
-        ble_uuid_t          char_uuid;
-        ble_uuid128_t       base_uuid = { BLE_SERVICES_BASE_UUID };
+    ble_uuid_t          char_uuid;
+    ble_uuid128_t       base_uuid = { BLE_SERVICES_BASE_UUID };
 
-        char_uuid.uuid = BLE_APSS_SENSOR_STATUS_UUID;
+    char_uuid.uuid = BLE_APSS_SENSOR_STATUS_UUID;
 
-        err_code = sd_ble_uuid_vs_add(&base_uuid, &char_uuid.type);
-        APP_ERROR_CHECK(err_code);
+    err_code = sd_ble_uuid_vs_add(&base_uuid, &char_uuid.type);
+    APP_ERROR_CHECK(err_code);
 
-        //Add read/write properties
-        ble_gatts_char_md_t char_md;
-        memset(&char_md, 0, sizeof(char_md));
+    //Add read/write properties
+    ble_gatts_char_md_t char_md;
+    memset(&char_md, 0, sizeof(char_md));
 
-        char_md.char_props.read  = 1;
-        char_md.char_props.write = 1;
+    char_md.char_props.read  = 1;
+    char_md.char_props.write = 1;
 
-        //Configure the attribute metadata
-        ble_gatts_attr_md_t attr_md;
-        memset(&attr_md, 0, sizeof(attr_md));
+    //Configure the attribute metadata
+    ble_gatts_attr_md_t attr_md;
+    memset(&attr_md, 0, sizeof(attr_md));
 
-        attr_md.vloc = BLE_GATTS_VLOC_USER;
+    attr_md.vloc = BLE_GATTS_VLOC_USER;
 
-        //Set read/write security levels to our characteristic
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
-        attr_md.wr_auth = 1;
+    //Set read/write security levels to our characteristic
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
+    attr_md.wr_auth = 1;
 
-        //Configure the characteristic value attribute
-        ble_gatts_attr_t attr_char_value;
-        memset(&attr_char_value, 0, sizeof(attr_char_value));
+    //Configure the characteristic value attribute
+    ble_gatts_attr_t attr_char_value;
+    memset(&attr_char_value, 0, sizeof(attr_char_value));
 
-        attr_char_value.p_uuid      = &char_uuid;
-        attr_char_value.p_attr_md   = &attr_md;
+    attr_char_value.p_uuid      = &char_uuid;
+    attr_char_value.p_attr_md   = &attr_md;
 
-        //Set characteristic length in number of bytes and value
-        attr_char_value.max_len     = sizeof(p_apss->p_sensor_config->state);
-        attr_char_value.init_len    = sizeof(p_apss->p_sensor_config->state);
-        attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_config->state);
+    //Set characteristic length in number of bytes and value
+    attr_char_value.max_len     = sizeof(p_apss->p_sensor_config->state);
+    attr_char_value.init_len    = sizeof(p_apss->p_sensor_config->state);
+    attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_config->state);
 
-        //Add characteristic to the service
-        err_code = sd_ble_gatts_characteristic_add(p_apss->service_handle,
-                &char_md,
-                &attr_char_value,
-                &p_apss->sensor_status_handle);
+    //Add characteristic to the service
+    err_code = sd_ble_gatts_characteristic_add(p_apss->service_handle,
+            &char_md,
+            &attr_char_value,
+            &p_apss->sensor_status_handle);
 
-        APP_ERROR_CHECK(err_code);
+    APP_ERROR_CHECK(err_code);
 }
 
 static void ble_apss_sensor_resolution_init(ble_apss_t *p_apss)
@@ -442,6 +478,15 @@ static void ble_apss_pressure_data_init(ble_apss_t *p_apss)
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
 
+
+    ble_gatts_attr_md_t cccd_md;
+    memset(&cccd_md, 0, sizeof(cccd_md));
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+    cccd_md.vloc                = BLE_GATTS_VLOC_STACK;
+    char_md.p_cccd_md           = &cccd_md;
+    char_md.char_props.notify   = 1;
+
     //Configure the characteristic value attribute
     ble_gatts_attr_t attr_char_value;
     memset(&attr_char_value, 0, sizeof(attr_char_value));
@@ -490,6 +535,14 @@ static void ble_apss_temperature_data_init(ble_apss_t *p_apss)
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
 
+    ble_gatts_attr_md_t cccd_md;
+    memset(&cccd_md, 0, sizeof(cccd_md));
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+    cccd_md.vloc                = BLE_GATTS_VLOC_STACK;
+    char_md.p_cccd_md           = &cccd_md;
+    char_md.char_props.notify   = 1;
+
     //Configure the characteristic value attribute
     ble_gatts_attr_t attr_char_value;
     memset(&attr_char_value, 0, sizeof(attr_char_value));
@@ -507,11 +560,10 @@ static void ble_apss_temperature_data_init(ble_apss_t *p_apss)
             &char_md,
             &attr_char_value,
             &p_apss->temperature_data_handle);
-
     APP_ERROR_CHECK(err_code);
 }
 
 /**
  * @}
  */
- 
+
