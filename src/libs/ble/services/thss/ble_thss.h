@@ -51,7 +51,7 @@ struct ble_thss
 /**
  * @brief Callback called when receiving a BLE event.
  * @param p_thss    Pointer to Service Structure
- * @param p_ble_evt Pointer to BLE event that caused the call * @return
+ * @param p_ble_evt Pointer to BLE event that caused the call
  */
 uint32_t ble_thss_on_ble_evt(ble_thss_t * p_thss, ble_evt_t * p_ble_evt);
 
