@@ -73,4 +73,10 @@ struct sensor_event
         void * p_sensor_data;
 };
 
+/*******************************************
+ * Sensor public callbacks
+ ******************************************/
+/* Sensor event callback type */
+typedef void (*sensor_event_callback_t)(sensor_event_t * event_data);
+
 #endif /* SRC_LIBS_SENSING_SENSOR_PUBLIC_INTERFACE_H_ */

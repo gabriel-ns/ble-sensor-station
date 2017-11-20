@@ -30,20 +30,13 @@ typedef struct bmp180_data
 }bmp180_data_t;
 
 /*******************************************
- * BMP180 callbacks
- ******************************************/
-/* Sensor event callback type */
-typedef void (*bmp180_event_cb_t)(sensor_event_t * event_data);
-
-
-/*******************************************
  * BMP180 Public Functions
  ******************************************/
 /* Function to start sensor */
 sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
         bmp180_pwr_mode_t pwr_mode,
         bmp180_pwr_mode_t ** p_p_pwr_mode,
-        bmp180_event_cb_t (* bmp180_event_cb)(sensor_event_t * event_data));
+        sensor_event_callback_t (* bmp180_event_cb)(sensor_event_t * event_data));
 
 sensor_error_code_t bmp180_drv_convert_data();
 

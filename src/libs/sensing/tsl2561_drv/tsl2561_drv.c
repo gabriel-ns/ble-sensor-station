@@ -205,7 +205,7 @@ static tsl2561_data_t m_sensor_data;
 
 static nrf_drv_twi_t *mp_twi;
 
-static tsl2561_event_cb_t p_event_callback = NULL;
+static sensor_event_callback_t p_event_callback = NULL;
 
 static sensor_event_t m_last_evt;
 
@@ -231,7 +231,7 @@ sensor_error_code_t tsl2561_drv_begin( nrf_drv_twi_t *p_twi,
         tsl2561_integration_time_t int_time,
         tsl2561_gain_t gain,
         tsl2561_config_t **config,
-        tsl2561_event_cb_t (* tsl2561_event_cb)(sensor_event_t *event_data))
+        sensor_event_callback_t (* tsl2561_event_cb)(sensor_event_t *event_data))
 {
     sensor_error_code_t err_code;
     m_last_evt.sensor = SENSOR_TSL2561;
@@ -239,7 +239,7 @@ sensor_error_code_t tsl2561_drv_begin( nrf_drv_twi_t *p_twi,
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *config = &m_sensor_config;
-    p_event_callback = (tsl2561_event_cb_t) tsl2561_event_cb;
+    p_event_callback = (sensor_event_callback_t) tsl2561_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));

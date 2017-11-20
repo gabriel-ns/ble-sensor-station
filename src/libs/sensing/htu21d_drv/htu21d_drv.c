@@ -64,7 +64,7 @@ static htu21d_data_t m_sensor_data;
 
 static nrf_drv_twi_t *mp_twi;
 
-static htu21d_event_cb_t p_event_callback = NULL;
+static sensor_event_callback_t p_event_callback = NULL;
 
 static sensor_event_t m_last_evt;
 
@@ -86,7 +86,7 @@ static uint16_t calculate_rh(uint16_t buffer);
 
 static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code);
 
-static htu21d_event_cb_t p_event_callback;
+static sensor_event_callback_t p_event_callback;
 
 /***********************************************
  * Public functions implementation
@@ -94,7 +94,7 @@ static htu21d_event_cb_t p_event_callback;
 sensor_error_code_t htu21d_drv_begin(nrf_drv_twi_t *p_twi,
         htu21d_resolution_t resolution,
         htu21d_resolution_t **p_p_res,
-        htu21d_event_cb_t (*htu21d_event_cb)(sensor_event_t * event_data))
+        sensor_event_callback_t (*htu21d_event_cb)(sensor_event_t * event_data))
 {
     sensor_error_code_t err_code;
     m_last_evt.sensor = SENSOR_HTU21D;
@@ -102,7 +102,7 @@ sensor_error_code_t htu21d_drv_begin(nrf_drv_twi_t *p_twi,
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *p_p_res = &m_sensor_resolution;
-    p_event_callback = (htu21d_event_cb_t) htu21d_event_cb;
+    p_event_callback = (sensor_event_callback_t) htu21d_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));

@@ -40,18 +40,13 @@ typedef struct tsl2561_config
 }tsl2561_config_t;
 
 /*******************************************
- * TSL2561 callbacks
- ******************************************/
-typedef void (*tsl2561_event_cb_t)(sensor_event_t *event_data);
-
-/*******************************************
  * TSL2561 public functions
  ******************************************/
 sensor_error_code_t tsl2561_drv_begin( nrf_drv_twi_t *p_twi,
         tsl2561_integration_time_t int_time,
         tsl2561_gain_t gain,
         tsl2561_config_t **config,
-        tsl2561_event_cb_t (* tsl2561_event_cb)(sensor_event_t *event_data));
+        sensor_event_callback_t (* tsl2561_event_cb)(sensor_event_t *event_data));
 
 sensor_error_code_t tsl2561_drv_convert_data();
 

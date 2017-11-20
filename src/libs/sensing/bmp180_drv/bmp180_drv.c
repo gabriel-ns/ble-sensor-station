@@ -86,7 +86,7 @@ static uint16_t raw_buffer;
 
 static nrf_drv_twi_t *mp_twi;
 
-static bmp180_event_cb_t p_event_callback;
+static sensor_event_callback_t p_event_callback;
 
 static sensor_event_t m_last_evt;
 /***********************************************
@@ -112,7 +112,7 @@ static sensor_error_code_t read_pressure_data(uint32_t *p_raw_press_data);
 sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
         bmp180_pwr_mode_t pwr_mode,
         bmp180_pwr_mode_t ** p_p_pwr_mode,
-        bmp180_event_cb_t (* bmp180_event_cb)(sensor_event_t * event_data))
+        sensor_event_callback_t (* bmp180_event_cb)(sensor_event_t * event_data))
 {
     sensor_error_code_t err_code;
     m_last_evt.sensor = SENSOR_BMP180;
@@ -120,7 +120,7 @@ sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *p_p_pwr_mode = &m_pwr_mode;
-    p_event_callback = (bmp180_event_cb_t) bmp180_event_cb;
+    p_event_callback = (sensor_event_callback_t) bmp180_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));

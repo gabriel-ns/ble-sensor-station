@@ -25,22 +25,6 @@
 #include "sensor_controller.h"
 
 /***********************************************
- * Private defines
- ***********************************************/
-
-/***********************************************
- * Private macros
- ***********************************************/
-
-/***********************************************
- * Private enums
- ***********************************************/
-
-/***********************************************
- * Private structs
- ***********************************************/
-
-/***********************************************
  * Private global variables
  ***********************************************/
 APP_TIMER_DEF(m_pressure_timer);
@@ -52,6 +36,8 @@ static nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(0);
 static sensor_controller_cfg_data_t m_sc_cfg_data;
 
 static sensor_controller_data_t m_sensor_data;
+
+static sensor_event_callback_t m_event_callback = NULL;
 
 /***********************************************
  * Private functions prototypes
@@ -130,6 +116,11 @@ void sensor_controller_init()
             NULL);
     APP_ERROR_CHECK(err_code);
 
+}
+
+void sensor_controller_event_subscribe(sensor_event_callback_t p_event_callback)
+{
+    m_event_callback = p_event_callback;
 }
 
 sensor_controller_data_t * sensor_controller_get_sensor_data_pointer()
@@ -279,6 +270,10 @@ static void sensor_event_callback(sensor_event_t *p_evt)
 
             default:
                 break;
+        }
+        if(m_event_callback != NULL)
+        {
+            m_event_callback(p_evt);
         }
     }
 }

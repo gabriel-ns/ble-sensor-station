@@ -28,10 +28,6 @@ typedef struct htu21d_data
         int16_t temperature;
 }htu21d_data_t;
 
-/*******************************************
- * HTU21D callbacks
- ******************************************/
-typedef void (*htu21d_event_cb_t)(sensor_event_t *event_data);
 
 /*******************************************
  * HTU21D public functions
@@ -39,7 +35,7 @@ typedef void (*htu21d_event_cb_t)(sensor_event_t *event_data);
 sensor_error_code_t htu21d_drv_begin(nrf_drv_twi_t *p_twi,
         htu21d_resolution_t resolution,
         htu21d_resolution_t **p_p_res,
-        htu21d_event_cb_t (* htu21d_event_cb)(sensor_event_t * event_data));
+        sensor_event_callback_t (* htu21d_event_cb)(sensor_event_t * event_data));
 
 sensor_error_code_t htu21d_drv_convert_data();
 

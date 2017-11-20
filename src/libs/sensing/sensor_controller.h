@@ -109,6 +109,8 @@ struct sensor_controller_cfg_data
  ****************************************************/
 void sensor_controller_init();
 
+void sensor_controller_event_subscribe(sensor_event_callback_t p_event_callback);
+
 sensor_controller_data_t * sensor_controller_get_sensor_data_pointer();
 
 sensor_controller_cfg_data_t * sensor_controller_get_config_pointer();
