@@ -15,6 +15,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/libs/ble/services/apss/ble_apss.c \
   $(PROJ_DIR)/src/libs/ble/services/thss/ble_thss.c \
   $(PROJ_DIR)/src/libs/ble/services/lss/ble_lss.c \
+  $(PROJ_DIR)/src/libs/ble/advertising/ble_adv_controller.c \
   $(PROJ_DIR)/src/libs/sensing/bmp180_drv/bmp180_drv.c \
   $(PROJ_DIR)/src/libs/sensing/htu21d_drv/htu21d_drv.c \
   $(PROJ_DIR)/src/libs/sensing/tsl2561_drv/tsl2561_drv.c \
@@ -58,6 +59,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/libs/sensing/htu21d_drv/ \
   $(PROJ_DIR)/src/libs/sensing/tsl2561_drv/ \
   $(PROJ_DIR)/src/libs/ble \
+  $(PROJ_DIR)/src/libs/ble/advertising \
   $(PROJ_DIR)/src/libs/ble/services/ \
   $(PROJ_DIR)/src/libs/ble/services/apss/ \
   $(PROJ_DIR)/src/libs/ble/services/thss/ \

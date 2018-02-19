@@ -28,6 +28,7 @@
 
 #include "sensor_controller.h"
 
+#include "ble_services_common.h"
 #include "ble.h"
 #include "ble_gatts.h"
 #include "ble_thss.h"
