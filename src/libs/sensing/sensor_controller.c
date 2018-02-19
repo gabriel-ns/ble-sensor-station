@@ -246,25 +246,22 @@ static void sensor_event_callback(sensor_event_t *p_evt)
             case SENSOR_BMP180:
                 if(p_evt->evt_type == SENSOR_EVT_DATA_READY)
                 {
-                    bmp180_data_t *sensor_data = (bmp180_data_t*) p_evt->p_sensor_data;
-                    m_sensor_data.bmp180_data.pressure = sensor_data->pressure;
-                    m_sensor_data.bmp180_data.temperature = sensor_data->temperature;
+                    m_sensor_data.bmp180_data.pressure = p_evt->sensor_data.bmp180_data.pressure;
+                    m_sensor_data.bmp180_data.temperature = p_evt->sensor_data.bmp180_data.temperature;
                 }
                 break;
             case SENSOR_TSL2561:
                 if(p_evt->evt_type == SENSOR_EVT_DATA_READY)
                 {
-                    tsl2561_data_t *sensor_data = (tsl2561_data_t*) p_evt->p_sensor_data;
-                    m_sensor_data.tsl2561_data.infrared_lux = sensor_data->infrared_lux;
-                    m_sensor_data.tsl2561_data.visible_lux = sensor_data->visible_lux;
+                    m_sensor_data.tsl2561_data.infrared_lux = p_evt->sensor_data.tsl2561_data.infrared_lux;
+                    m_sensor_data.tsl2561_data.visible_lux = p_evt->sensor_data.tsl2561_data.visible_lux;
                 }
                 break;
             case SENSOR_HTU21D:
                 if(p_evt->evt_type == SENSOR_EVT_DATA_READY)
                 {
-                    htu21d_data_t *sensor_data = (htu21d_data_t*) p_evt->p_sensor_data;
-                    m_sensor_data.htu21d_data.temperature = sensor_data->temperature;
-                    m_sensor_data.htu21d_data.humidity = sensor_data->humidity;
+                    m_sensor_data.htu21d_data.temperature = p_evt->sensor_data.htu21d_data.temperature;
+                    m_sensor_data.htu21d_data.humidity = p_evt->sensor_data.htu21d_data.humidity;
                 }
                 break;
 

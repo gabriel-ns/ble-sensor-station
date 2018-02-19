@@ -58,6 +58,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/libs/sensing/htu21d_drv/ \
   $(PROJ_DIR)/src/libs/sensing/tsl2561_drv/ \
   $(PROJ_DIR)/src/libs/ble \
+  $(PROJ_DIR)/src/libs/ble/services/ \
   $(PROJ_DIR)/src/libs/ble/services/apss/ \
   $(PROJ_DIR)/src/libs/ble/services/thss/ \
   $(PROJ_DIR)/src/libs/ble/services/lss/ \

@@ -23,11 +23,7 @@ typedef enum pwr_mode
 /*******************************************
  * BMP180 Public Structs
  ******************************************/
-typedef struct bmp180_data
-{
-        uint32_t pressure;
-        int16_t  temperature;
-}bmp180_data_t;
+
 
 /*******************************************
  * BMP180 Public Functions

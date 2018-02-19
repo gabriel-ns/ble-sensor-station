@@ -27,11 +27,7 @@ typedef enum tsl2561_gain
 /*******************************************
  * TSL2561 public structs
  ******************************************/
-typedef struct tsl2561_data
-{
-        uint32_t visible_lux;
-        uint32_t infrared_lux;
-}tsl2561_data_t;
+
 
 typedef struct tsl2561_config
 {

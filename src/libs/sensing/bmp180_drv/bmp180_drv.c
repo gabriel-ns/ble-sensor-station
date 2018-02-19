@@ -263,7 +263,8 @@ static void timeout_cb(void * p_ctx)
         calculate_result_values(raw_buffer, buff);
 
         m_last_evt.evt_type = SENSOR_EVT_DATA_READY;
-        m_last_evt.p_sensor_data = &m_sensor_data;
+        m_last_evt.sensor_data.bmp180_data.pressure = m_sensor_data.pressure;
+        m_last_evt.sensor_data.bmp180_data.temperature = m_sensor_data.temperature;
 
         if(p_event_callback != NULL)
         {
@@ -383,7 +384,7 @@ static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code)
     m_err_code = err_code;
 
     m_last_evt.evt_type = SENSOR_EVT_ERROR;
-    m_last_evt.p_sensor_data = &m_err_code;
+    m_last_evt.sensor_data.error_code = m_err_code;
 
     if(p_event_callback != NULL)
     {

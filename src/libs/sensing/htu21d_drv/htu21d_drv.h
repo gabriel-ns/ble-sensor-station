@@ -22,11 +22,7 @@ typedef enum htu21d_resolution
 /*******************************************
  * HTU21D Public structs
  ******************************************/
-typedef struct htu21d_data
-{
-        uint16_t humidity;
-        int16_t temperature;
-}htu21d_data_t;
+
 
 
 /*******************************************

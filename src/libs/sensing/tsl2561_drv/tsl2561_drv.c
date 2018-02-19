@@ -335,7 +335,8 @@ static void timeout_cb(void * p_ctx)
     calculate_lux(data);
 
     m_last_evt.evt_type = SENSOR_EVT_DATA_READY;
-    m_last_evt.p_sensor_data = &m_sensor_data;
+    m_last_evt.sensor_data.tsl2561_data.infrared_lux = m_sensor_data.infrared_lux;
+    m_last_evt.sensor_data.tsl2561_data.visible_lux = m_sensor_data.visible_lux;
 
     if(p_event_callback != NULL)
     {
@@ -470,7 +471,7 @@ static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code)
     m_err_code = err_code;
 
     m_last_evt.evt_type = SENSOR_EVT_ERROR;
-    m_last_evt.p_sensor_data = &m_err_code;
+    m_last_evt.sensor_data.error_code = m_err_code;
 
     if(p_event_callback != NULL)
     {
