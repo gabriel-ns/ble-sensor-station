@@ -33,12 +33,14 @@
 #include "ble_thss.h"
 #include "ble_apss.h"
 #include "ble_lss.h"
+#include "ble_rpcs.h"
 
 #include "ble_adv_controller.h"
 
 static ble_thss_t m_ble_thss;
 static ble_apss_t m_ble_apss;
 static ble_lss_t m_ble_lss;
+static ble_rpcs_t m_ble_rpcs;
 
 static void gap_params_init(void);
 static void ble_stack_init(void);
@@ -59,6 +61,7 @@ void ble_manager_init()
     ble_apss_init(&m_ble_apss);
     ble_thss_init(&m_ble_thss);
     ble_lss_init(&m_ble_lss);
+    ble_rpcs_init(&m_ble_rpcs);
 
     sensor_controller_event_subscribe(sensor_evt_dispatch);
 }
@@ -69,6 +72,7 @@ static void sensor_evt_dispatch(sensor_event_t *p_sensor_evt)
     ble_apss_on_sensor_evt(&m_ble_apss, p_sensor_evt);
     ble_thss_on_sensor_evt(&m_ble_thss, p_sensor_evt);
     ble_lss_on_sensor_evt(&m_ble_lss, p_sensor_evt);
+
 }
 
 static void gap_params_init()
@@ -141,6 +145,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
     ble_apss_on_ble_evt(&m_ble_apss, p_ble_evt);
     ble_thss_on_ble_evt(&m_ble_thss, p_ble_evt);
     ble_lss_on_ble_evt(&m_ble_lss, p_ble_evt);
+    ble_rpcs_on_ble_evt(&m_ble_rpcs, p_ble_evt);
 
     switch (p_ble_evt->header.evt_id)
     {

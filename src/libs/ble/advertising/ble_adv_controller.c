@@ -12,6 +12,7 @@
 #include "app_config.h"
 #include "app_error.h"
 
+#include "ble_gap.h"
 #include "nrf_drv_twi.h"
 #include "app_util_platform.h"
 #include "sensor_public_interface.h"
@@ -123,5 +124,21 @@ static void update_adv_data()
 
     err_code = ble_advdata_set(&adv_data, &scrsp_data);
 
+}
+
+ret_code_t advertising_update_adv_int(uint16_t ms)
+{
+	if(ms > ADVERTISING_MAXIMUM_PERIOD_MS ||
+			ms < ADVERTISING_MINIMUM_PERIOD_MS)
+	{
+		return NRF_ERROR_INVALID_PARAM;
+	}
+	m_adv_params.interval = MSEC_TO_UNITS(ms, UNIT_0_625_MS);
+	return NRF_SUCCESS;
+}
+
+ret_code_t advertising_update_tx_pwr(int8_t tx_pwr)
+{
+	return sd_ble_gap_tx_power_set(tx_pwr);
 }
 

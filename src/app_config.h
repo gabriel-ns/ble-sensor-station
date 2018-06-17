@@ -34,6 +34,7 @@
 #define ADVERTISING_RSSI_0M                             0xC3                                        /**< The Beacon's measured RSSI at 0 meter distance in dBm. */
 #define ADVERTISING_MINIMUM_PERIOD_MS                   100                                         /**< Set the lower limit to advertising period. Must not be minor than 20. */
 #define ADVERTISING_MAXIMUM_PERIOD_MS                   10240
+#define ADVERTISING_DEFAULT_PERIOD_MS					500
 
 /** BLE configuration */
 #define APP_DEVICE_NAME                                 "UFABC000000"                               /**< Advertised device name inside scan response when in connectable mode **/
