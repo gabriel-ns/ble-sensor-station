@@ -315,7 +315,7 @@ static void ble_apss_sensing_interval_init(ble_apss_t *p_apss)
     ble_uuid_t          char_uuid;
     ble_uuid128_t       base_uuid = { BLE_SERVICES_BASE_UUID };
 
-    char_uuid.uuid = BLE_APSS_SENSING_INTERVAL_UUID;
+    char_uuid.uuid = BLE_APSS_SENSING_INTERVAL_CHAR_UUID;
 
     err_code = sd_ble_uuid_vs_add(&base_uuid, &char_uuid.type);
     APP_ERROR_CHECK(err_code);
@@ -365,7 +365,7 @@ static void ble_apss_sensor_status_init(ble_apss_t *p_apss)
     ble_uuid_t          char_uuid;
     ble_uuid128_t       base_uuid = { BLE_SERVICES_BASE_UUID };
 
-    char_uuid.uuid = BLE_APSS_SENSOR_STATUS_UUID;
+    char_uuid.uuid = BLE_APSS_SENSOR_STATUS_CHAR_UUID;
 
     err_code = sd_ble_uuid_vs_add(&base_uuid, &char_uuid.type);
     APP_ERROR_CHECK(err_code);
@@ -415,7 +415,7 @@ static void ble_apss_sensor_resolution_init(ble_apss_t *p_apss)
     ble_uuid_t          char_uuid;
     ble_uuid128_t       base_uuid = { BLE_SERVICES_BASE_UUID };
 
-    char_uuid.uuid = BLE_APSS_SENSOR_RESOLUTION_UUID;
+    char_uuid.uuid = BLE_APSS_SENSOR_RESOLUTION_CHAR_UUID;
 
     err_code = sd_ble_uuid_vs_add(&base_uuid, &char_uuid.type);
     APP_ERROR_CHECK(err_code);
@@ -465,7 +465,7 @@ static void ble_apss_pressure_data_init(ble_apss_t *p_apss)
     ble_uuid_t          char_uuid;
     ble_uuid128_t       base_uuid = { BLE_SERVICES_BASE_UUID };
 
-    char_uuid.uuid = BLE_APSS_PRESSURE_DATA_UUID;
+    char_uuid.uuid = BLE_APSS_PRESSURE_DATA_CHAR_UUID;
 
     err_code = sd_ble_uuid_vs_add(&base_uuid, &char_uuid.type);
     APP_ERROR_CHECK(err_code);
@@ -522,7 +522,7 @@ static void ble_apss_temperature_data_init(ble_apss_t *p_apss)
     ble_uuid_t          char_uuid;
     ble_uuid128_t       base_uuid = { BLE_SERVICES_BASE_UUID };
 
-    char_uuid.uuid = BLE_APSS_TEMPERATURE_DATA_UUID;
+    char_uuid.uuid = BLE_APSS_TEMPERATURE_DATA_CHAR_UUID;
 
     err_code = sd_ble_uuid_vs_add(&base_uuid, &char_uuid.type);
     APP_ERROR_CHECK(err_code);
