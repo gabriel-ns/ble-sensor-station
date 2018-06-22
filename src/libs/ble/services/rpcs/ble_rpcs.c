@@ -45,7 +45,7 @@ void ble_rpcs_init(ble_rpcs_t * p_rpcs)
     uint32_t        err_code;
     ble_uuid_t      service_uuid;
     ble_uuid128_t   base_uuid = { BLE_SERVICES_BASE_UUID };
-    uint32_t        default_password;
+
 
     service_uuid.uuid = BLE_RPCS_SERVICE_UUID;
 

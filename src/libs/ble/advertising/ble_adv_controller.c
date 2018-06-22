@@ -70,7 +70,7 @@ void adv_on_sensor_event(sensor_evt_t *p_sensor_evt)
 
 void advertising_init()
 {
-    uint32_t err_code;
+
 
     /** Initialize advertising parameters (used when starting advertising). */
     memset(&m_adv_params, 0, sizeof(m_adv_params));
@@ -104,7 +104,7 @@ void advertising_stop()
 
 static void update_adv_data()
 {
-    uint32_t err_code;
+
 	ble_advdata_t adv_data;
     ble_advdata_t scrsp_data;
 

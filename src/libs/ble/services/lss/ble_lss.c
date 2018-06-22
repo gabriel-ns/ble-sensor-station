@@ -140,7 +140,7 @@ void ble_lss_init(ble_lss_t * p_lss)
     uint32_t        err_code;
     ble_uuid_t      service_uuid;
     ble_uuid128_t   base_uuid = { BLE_SERVICES_BASE_UUID };
-    uint32_t        default_password;
+
 
     service_uuid.uuid = BLE_LSS_SERVICE_UUID;
 
