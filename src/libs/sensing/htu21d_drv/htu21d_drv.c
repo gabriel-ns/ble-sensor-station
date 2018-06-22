@@ -176,7 +176,7 @@ static void timeout_cb(void * p_ctx)
 
         buffer = BYTES_REVERSE_16BIT(buffer);
 
-        m_sensor_data.temperature = calculate_temperature(buffer);
+        m_sensor_data.temp = calculate_temperature(buffer);
 
         err_code = nrf_drv_twi_tx(mp_twi, HTU21D_DEVICE_ADDR, &convert_cmd, sizeof(convert_cmd), false);
         if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
@@ -196,12 +196,12 @@ static void timeout_cb(void * p_ctx)
         if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
 
         buffer = BYTES_REVERSE_16BIT(buffer);
-        m_sensor_data.humidity = calculate_rh(buffer);
+        m_sensor_data.hum = calculate_rh(buffer);
         if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
 
         m_last_evt.evt_type = SENSOR_EVT_DATA_READY;
-        m_last_evt.sensor_data.htu_data.humidity = m_sensor_data.humidity;
-        m_last_evt.sensor_data.htu_data.temperature = m_sensor_data.temperature;
+        m_last_evt.data.htu.hum = m_sensor_data.hum;
+        m_last_evt.data.htu.temp = m_sensor_data.temp;
 
         if(p_event_callback != NULL)
         {
@@ -276,7 +276,7 @@ static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code)
     m_err_code = err_code;
 
     m_last_evt.evt_type = SENSOR_EVT_ERROR;
-    m_last_evt.sensor_data.error_code = m_err_code;
+    m_last_evt.data.error_code = m_err_code;
 
     if(p_event_callback != NULL)
     {

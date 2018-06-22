@@ -33,9 +33,9 @@ static void update_adv_data();
 
 ble_adv_data_t m_ble_adv_data =
 {
-		.pressure = 0,
-		.temperature = 0,
-		.humidity = 0,
+		.pres = 0,
+		.temp = 0,
+		.hum = 0,
 		.vis_lux = 0,
 		.ir_lux = 0
 };
@@ -48,20 +48,20 @@ void adv_on_sensor_event(sensor_evt_t *p_sensor_evt)
 	switch(p_sensor_evt->sensor)
 	{
 	case SENSOR_BMP180:
-		m_ble_adv_data.pressure =
-				p_sensor_evt->sensor_data.bmp_data.pressure;
+		m_ble_adv_data.pres =
+				p_sensor_evt->data.bmp.pres;
 		break;
 	case SENSOR_HTU21D:
-		m_ble_adv_data.temperature =
-				p_sensor_evt->sensor_data.htu_data.temperature;
-		m_ble_adv_data.humidity =
-				p_sensor_evt->sensor_data.htu_data.humidity;
+		m_ble_adv_data.temp =
+				p_sensor_evt->data.htu.temp;
+		m_ble_adv_data.hum =
+				p_sensor_evt->data.htu.hum;
 		break;
 	case SENSOR_TSL2561:
 		m_ble_adv_data.ir_lux =
-				p_sensor_evt->sensor_data.tsl_data.ir_lux;
+				p_sensor_evt->data.tsl.ir_lux;
 		m_ble_adv_data.vis_lux =
-				p_sensor_evt->sensor_data.tsl_data.vis_lux;
+				p_sensor_evt->data.tsl.vis_lux;
 		break;
 	}
 
@@ -70,8 +70,6 @@ void adv_on_sensor_event(sensor_evt_t *p_sensor_evt)
 
 void advertising_init()
 {
-
-
     /** Initialize advertising parameters (used when starting advertising). */
     memset(&m_adv_params, 0, sizeof(m_adv_params));
     m_adv_params.type = BLE_GAP_ADV_TYPE_ADV_IND;
@@ -104,22 +102,20 @@ void advertising_stop()
 
 static void update_adv_data()
 {
-
-	ble_advdata_t adv_data;
-    ble_advdata_t scrsp_data;
-
-    ble_advdata_manuf_data_t        	manuf_data; // Variable to hold manufacturer specific data
-    manuf_data.company_identifier       = 0x0059; // Nordics company ID
-    manuf_data.data.p_data              = (uint8_t *) &m_ble_adv_data;
-    manuf_data.data.size                = sizeof(ble_adv_data_t);
+    ble_advdata_manuf_data_t      manuf_data;
+    manuf_data.company_identifier = 0x0059; // Nordics company ID
+    manuf_data.data.p_data        = (uint8_t *) &m_ble_adv_data;
+    manuf_data.data.size          = sizeof(ble_adv_data_t);
 
     /** Build and set advertising data. */
+    ble_advdata_t adv_data;
     memset(&adv_data, 0, sizeof(ble_advdata_t));
     adv_data.name_type = BLE_ADVDATA_NO_NAME;
     adv_data.flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
     adv_data.p_manuf_specific_data = &manuf_data;
 
     /** Build and set scan response data. */
+    ble_advdata_t scrsp_data;
     memset(&scrsp_data, 0, sizeof(scrsp_data));
     scrsp_data.name_type = BLE_ADVDATA_FULL_NAME;
     scrsp_data.include_appearance = false;

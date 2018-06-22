@@ -285,7 +285,7 @@ static uint32_t on_rw_authorize_req(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
 
 static void ble_apss_notify(ble_apss_t * p_apss, sensor_evt_t *p_sensor_evt)
 {
-    uint16_t               len = sizeof(p_apss->p_sensor_data->temperature);
+    uint16_t               len = sizeof(p_apss->p_sensor_data->temp);
     ble_gatts_hvx_params_t hvx_params;
     memset(&hvx_params, 0, sizeof(hvx_params));
 
@@ -294,18 +294,18 @@ static void ble_apss_notify(ble_apss_t * p_apss, sensor_evt_t *p_sensor_evt)
     hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
     hvx_params.offset = 0;
     hvx_params.p_len  = &len;
-    hvx_params.p_data = (uint8_t*)&p_apss->p_sensor_data->temperature;
+    hvx_params.p_data = (uint8_t*)&p_apss->p_sensor_data->temp;
 
     sd_ble_gatts_hvx(p_apss->conn_handle, &hvx_params);
 
     /* Notify the pressure data */
-    len = sizeof(p_apss->p_sensor_data->pressure);
+    len = sizeof(p_apss->p_sensor_data->pres);
 
     hvx_params.handle = p_apss->pressure_data_handle.value_handle;
     hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
     hvx_params.offset = 0;
     hvx_params.p_len  = &len;
-    hvx_params.p_data = (uint8_t*)&p_apss->p_sensor_data->pressure;
+    hvx_params.p_data = (uint8_t*)&p_apss->p_sensor_data->pres;
     sd_ble_gatts_hvx(p_apss->conn_handle, &hvx_params);
 }
 
@@ -503,9 +503,9 @@ static void ble_apss_pressure_data_init(ble_apss_t *p_apss)
     attr_char_value.p_attr_md   = &attr_md;
 
     //Set characteristic length in number of bytes and value
-    attr_char_value.max_len     = sizeof(p_apss->p_sensor_data->pressure);
-    attr_char_value.init_len    = sizeof(p_apss->p_sensor_data->pressure);
-    attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_data->pressure);
+    attr_char_value.max_len     = sizeof(p_apss->p_sensor_data->pres);
+    attr_char_value.init_len    = sizeof(p_apss->p_sensor_data->pres);
+    attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_data->pres);
 
     //Add characteristic to the service
     err_code = sd_ble_gatts_characteristic_add(p_apss->service_handle,
@@ -559,9 +559,9 @@ static void ble_apss_temperature_data_init(ble_apss_t *p_apss)
     attr_char_value.p_attr_md   = &attr_md;
 
     //Set characteristic length in number of bytes and value
-    attr_char_value.max_len     = sizeof(p_apss->p_sensor_data->temperature);
-    attr_char_value.init_len    = sizeof(p_apss->p_sensor_data->temperature);
-    attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_data->temperature);
+    attr_char_value.max_len     = sizeof(p_apss->p_sensor_data->temp);
+    attr_char_value.init_len    = sizeof(p_apss->p_sensor_data->temp);
+    attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_data->temp);
 
     //Add characteristic to the service
     err_code = sd_ble_gatts_characteristic_add(p_apss->service_handle,

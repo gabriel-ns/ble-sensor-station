@@ -263,8 +263,8 @@ static void timeout_cb(void * p_ctx)
         calculate_result_values(raw_buffer, buff);
 
         m_last_evt.evt_type = SENSOR_EVT_DATA_READY;
-        m_last_evt.sensor_data.bmp_data.pressure = m_sensor_data.pressure;
-        m_last_evt.sensor_data.bmp_data.temperature = m_sensor_data.temperature;
+        m_last_evt.data.bmp.pres = m_sensor_data.pres;
+        m_last_evt.data.bmp.temp = m_sensor_data.temp;
 
         if(p_event_callback != NULL)
         {
@@ -348,7 +348,7 @@ static void calculate_result_values(int16_t raw_temp, uint32_t raw_pres)
     X1 = ((raw_temp - m_calib_data.AC6) * m_calib_data.AC5) >> 15;
     X2 = (m_calib_data.MC * 2048) / (X1 + m_calib_data.MD);
     B5 = X1 + X2;
-    m_sensor_data.temperature = ((B5 + 8) >> 4) * 10;
+    m_sensor_data.temp = ((B5 + 8) >> 4) * 10;
 
     B6 = B5 - 4000;
     X1 = (m_calib_data.B2 * ((B6 * B6) >> 12)) >> 11;
@@ -375,7 +375,7 @@ static void calculate_result_values(int16_t raw_temp, uint32_t raw_pres)
     X2 = (-7357 * local_buff) >> 16;
     local_buff = local_buff + ((X1 + X2 + 3791) / 16);
 
-    m_sensor_data.pressure = local_buff;
+    m_sensor_data.pres = local_buff;
 }
 
 static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code)
@@ -384,7 +384,7 @@ static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code)
     m_err_code = err_code;
 
     m_last_evt.evt_type = SENSOR_EVT_ERROR;
-    m_last_evt.sensor_data.error_code = m_err_code;
+    m_last_evt.data.error_code = m_err_code;
 
     if(p_event_callback != NULL)
     {

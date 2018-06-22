@@ -67,14 +67,14 @@ typedef enum sensor_type
  ******************************************/
 typedef struct bmp180_data
 {
-        uint32_t pressure;
-        int16_t  temperature;
+        uint32_t pres;
+        int16_t  temp;
 }bmp180_data_t;
 
 typedef struct htu21d_data
 {
-        uint16_t humidity;
-        int16_t temperature;
+        uint16_t hum;
+        int16_t temp;
 }htu21d_data_t;
 
 typedef struct tsl2561_data
@@ -85,9 +85,9 @@ typedef struct tsl2561_data
 
 union sensor_data_payload
 {
-	bmp180_data_t bmp_data;
-	htu21d_data_t htu_data;
-	tsl2561_data_t tsl_data;
+	bmp180_data_t bmp;
+	htu21d_data_t htu;
+	tsl2561_data_t tsl;
 	sensor_err_code_t error_code;
 };
 
@@ -96,7 +96,7 @@ struct sensor_event
 {
         sensor_type_t sensor;
         sensor_evt_type_t evt_type;
-        union sensor_data_payload sensor_data;
+        union sensor_data_payload data;
 };
 
 /*******************************************
