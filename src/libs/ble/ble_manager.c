@@ -48,7 +48,7 @@ static void conn_params_init(void);
 static void ble_mac_addr_get(uint8_t *device_addr);
 
 
-static void sensor_evt_dispatch(sensor_event_t *p_sensor_evt);
+static void sensor_evt_dispatch(sensor_evt_t *p_sensor_evt);
 
 void ble_manager_init()
 {
@@ -63,12 +63,12 @@ void ble_manager_init()
     ble_lss_init(&m_ble_lss);
     ble_rpcs_init(&m_ble_rpcs);
 
-    sensor_controller_event_subscribe(sensor_evt_dispatch);
+    sensor_ctrl_evt_sub(sensor_evt_dispatch);
 }
 
-static void sensor_evt_dispatch(sensor_event_t *p_sensor_evt)
+static void sensor_evt_dispatch(sensor_evt_t *p_sensor_evt)
 {
-	advertising_on_sensor_event(p_sensor_evt);
+	adv_on_sensor_event(p_sensor_evt);
     ble_apss_on_sensor_evt(&m_ble_apss, p_sensor_evt);
     ble_thss_on_sensor_evt(&m_ble_thss, p_sensor_evt);
     ble_lss_on_sensor_evt(&m_ble_lss, p_sensor_evt);

@@ -60,7 +60,7 @@ uint32_t ble_thss_on_ble_evt(ble_thss_t * p_thss, ble_evt_t * p_ble_evt);
  * @param p_thss        Pointer to Service Structure
  * @param p_sensor_evt  Pointer to the sensor event
  */
-void ble_thss_on_sensor_evt(ble_thss_t * p_thss, sensor_event_t *p_sensor_evt);
+void ble_thss_on_sensor_evt(ble_thss_t * p_thss, sensor_evt_t *p_sensor_evt);
 
 /**
  * @brief Function for initializing Temperature and Humidity Sensor Service.

@@ -132,7 +132,7 @@ int main(void)
     NRF_LOG_INFO("Initializing FW\n");
     NRF_LOG_FLUSH();
 
-    sensor_controller_init();
+    sensor_ctrl_init();
     ble_manager_init();
 
     // Enter main loop.

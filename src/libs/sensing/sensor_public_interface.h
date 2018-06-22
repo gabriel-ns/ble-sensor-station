@@ -25,7 +25,7 @@
 #define SENSOR_TIMER_ERROR_CHECK(ERR)          if(ERR != NRF_SUCCESS) return SENSOR_TIMER_ERROR
 #define SENSOR_COMMUNICATION_ERROR_CHECK(ERR)  if(ERR != NRF_SUCCESS) return SENSOR_COMMUNICATION_ERROR
 
-typedef struct sensor_event sensor_event_t;
+typedef struct sensor_event sensor_evt_t;
 
 /*******************************************
  * Sensor public enums
@@ -37,7 +37,7 @@ typedef enum sensor_error
     SENSOR_INVALID_PARAMETER,
     SENSOR_TIMER_ERROR,
     SENSOR_UNKNOWN_ERROR
-}sensor_error_code_t;
+}sensor_err_code_t;
 
 typedef enum sensor_state
 {
@@ -79,16 +79,16 @@ typedef struct htu21d_data
 
 typedef struct tsl2561_data
 {
-        uint32_t visible_lux;
-        uint32_t infrared_lux;
+        uint32_t vis_lux;
+        uint32_t ir_lux;
 }tsl2561_data_t;
 
 union sensor_data_payload
 {
-	bmp180_data_t bmp180_data;
-	htu21d_data_t htu21d_data;
-	tsl2561_data_t tsl2561_data;
-	sensor_error_code_t error_code;
+	bmp180_data_t bmp_data;
+	htu21d_data_t htu_data;
+	tsl2561_data_t tsl_data;
+	sensor_err_code_t error_code;
 };
 
 /* Sensor event struct */
@@ -103,6 +103,6 @@ struct sensor_event
  * Sensor public callbacks
  ******************************************/
 /* Sensor event callback type */
-typedef void (*sensor_event_callback_t)(sensor_event_t * event_data);
+typedef void (*sensor_evt_callback_t)(sensor_evt_t * event_data);
 
 #endif /* SRC_LIBS_SENSING_SENSOR_PUBLIC_INTERFACE_H_ */

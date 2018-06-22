@@ -18,7 +18,7 @@ typedef enum pwr_mode
     BMP180_HIGH_RES,
     BMP180_ULTRA_HIGH_RES,
     BMP180_SHUTDOWN
-}bmp180_pwr_mode_t;
+}bmp_pwr_mode_t;
 
 /*******************************************
  * BMP180 Public Structs
@@ -29,15 +29,15 @@ typedef enum pwr_mode
  * BMP180 Public Functions
  ******************************************/
 /* Function to start sensor */
-sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
-        bmp180_pwr_mode_t pwr_mode,
-        bmp180_pwr_mode_t ** p_p_pwr_mode,
-        sensor_event_callback_t (* bmp180_event_cb)(sensor_event_t * event_data));
+sensor_err_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
+        bmp_pwr_mode_t pwr_mode,
+        bmp_pwr_mode_t ** p_p_pwr_mode,
+        sensor_evt_callback_t (* bmp180_event_cb)(sensor_evt_t * event_data));
 
-sensor_error_code_t bmp180_drv_convert_data();
+sensor_err_code_t bmp180_drv_convert_data();
 
 bmp180_data_t bmp180_drv_get_last_converson();
 
-sensor_error_code_t bmp180_set_pwr_mode(bmp180_pwr_mode_t pwr_mode);
+sensor_err_code_t bmp180_set_pwr_mode(bmp_pwr_mode_t pwr_mode);
 
 #endif /* SRC_LIBS_SENSING_BMP180_DRV_BMP180_DRV_H_ */

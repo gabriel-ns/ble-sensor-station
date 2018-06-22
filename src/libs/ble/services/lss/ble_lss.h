@@ -62,7 +62,7 @@ uint32_t ble_lss_on_ble_evt(ble_lss_t * p_lss, ble_evt_t * p_ble_evt);
  * @param p_lss         Pointer to Service Structure
  * @param p_sensor_evt  Pointer to the sensor event
  */
-void ble_lss_on_sensor_evt(ble_lss_t * p_lss, sensor_event_t *p_sensor_evt);
+void ble_lss_on_sensor_evt(ble_lss_t * p_lss, sensor_evt_t *p_sensor_evt);
 
 /**
  * @brief Function for initializing Luminosity Sensor Service.

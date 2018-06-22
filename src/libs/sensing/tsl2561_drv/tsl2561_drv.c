@@ -205,9 +205,9 @@ static tsl2561_data_t m_sensor_data;
 
 static nrf_drv_twi_t *mp_twi;
 
-static sensor_event_callback_t p_event_callback = NULL;
+static sensor_evt_callback_t p_event_callback = NULL;
 
-static sensor_event_t m_last_evt;
+static sensor_evt_t m_last_evt;
 
 
 /***********************************************
@@ -215,31 +215,31 @@ static sensor_event_t m_last_evt;
  ***********************************************/
 static void timeout_cb(void * p_ctx);
 
-static uint16_t get_conversion_time(tsl2561_integration_time_t int_time);
+static uint16_t get_conversion_time(tsl_int_time_t int_time);
 
 //static sensor_error_code_t tsl2561_drv_check_res_integrity(tsl2561_integration_time_t * int_time);
 
-static sensor_error_code_t calculate_lux(tsl2561_adc_data_t data);
+static sensor_err_code_t calculate_lux(tsl2561_adc_data_t data);
 
-static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code);
+static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code);
 
-static sensor_error_code_t tsl2561_drv_set_power(tsl2561_power_t pwr);
+static sensor_err_code_t tsl2561_drv_set_power(tsl2561_power_t pwr);
 /***********************************************
  * Public functions implementation
  ***********************************************/
-sensor_error_code_t tsl2561_drv_begin( nrf_drv_twi_t *p_twi,
-        tsl2561_integration_time_t int_time,
-        tsl2561_gain_t gain,
+sensor_err_code_t tsl2561_drv_begin( nrf_drv_twi_t *p_twi,
+        tsl_int_time_t int_time,
+        tsl_gain_t gain,
         tsl2561_config_t **config,
-        sensor_event_callback_t (* tsl2561_event_cb)(sensor_event_t *event_data))
+        sensor_evt_callback_t (* tsl2561_event_cb)(sensor_evt_t *event_data))
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     m_last_evt.sensor = SENSOR_TSL2561;
 
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *config = &m_sensor_config;
-    p_event_callback = (sensor_event_callback_t) tsl2561_event_cb;
+    p_event_callback = (sensor_evt_callback_t) tsl2561_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));
@@ -256,9 +256,9 @@ sensor_error_code_t tsl2561_drv_begin( nrf_drv_twi_t *p_twi,
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t tsl2561_drv_convert_data()
+sensor_err_code_t tsl2561_drv_convert_data()
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     err_code = tsl2561_drv_set_power(TSL2561_POWER_UP);
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 
@@ -277,13 +277,13 @@ tsl2561_data_t tsl2561_drv_get_last_conversion_data()
     return m_sensor_data;
 }
 
-sensor_error_code_t tsl2561_drv_set_integration_time(tsl2561_integration_time_t int_time)
+sensor_err_code_t tsl2561_drv_set_integration_time(tsl_int_time_t int_time)
 {
     static uint8_t cmd[2];
     cmd[0] = TSL2561_CMD_TEMPLATE | TSL2561_REG_ADDR_TIMING;
     cmd[1] = 0x00 | (m_sensor_config.gain << 4) | int_time;
 
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     err_code = nrf_drv_twi_tx(mp_twi, TSL2561_DEVICE_ADDR, cmd, 2, false);
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 
@@ -292,13 +292,13 @@ sensor_error_code_t tsl2561_drv_set_integration_time(tsl2561_integration_time_t 
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t tsl2561_drv_set_gain(tsl2561_gain_t gain)
+sensor_err_code_t tsl2561_drv_set_gain(tsl_gain_t gain)
 {
     uint8_t cmd[2];
     cmd[0] = TSL2561_CMD_TEMPLATE | TSL2561_REG_ADDR_TIMING;
     cmd[1] = 0x00 | (gain << 4) | m_sensor_config.int_time;
 
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     err_code = nrf_drv_twi_tx(mp_twi, TSL2561_DEVICE_ADDR, cmd, 2, false);
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 
@@ -312,7 +312,7 @@ sensor_error_code_t tsl2561_drv_set_gain(tsl2561_gain_t gain)
 static void timeout_cb(void * p_ctx)
 {
     uint8_t cmd;
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
 
     tsl2561_adc_data_t data = {0,0};
     cmd = TSL2561_CMD_TEMPLATE | TSL2561_REG_ADDR_DATA0L;
@@ -335,8 +335,8 @@ static void timeout_cb(void * p_ctx)
     calculate_lux(data);
 
     m_last_evt.evt_type = SENSOR_EVT_DATA_READY;
-    m_last_evt.sensor_data.tsl2561_data.infrared_lux = m_sensor_data.infrared_lux;
-    m_last_evt.sensor_data.tsl2561_data.visible_lux = m_sensor_data.visible_lux;
+    m_last_evt.sensor_data.tsl_data.ir_lux = m_sensor_data.ir_lux;
+    m_last_evt.sensor_data.tsl_data.vis_lux = m_sensor_data.vis_lux;
 
     if(p_event_callback != NULL)
     {
@@ -344,7 +344,7 @@ static void timeout_cb(void * p_ctx)
     }
 }
 
-static uint16_t get_conversion_time(tsl2561_integration_time_t int_time)
+static uint16_t get_conversion_time(tsl_int_time_t int_time)
 {
     switch(int_time)
     {
@@ -361,7 +361,7 @@ static uint16_t get_conversion_time(tsl2561_integration_time_t int_time)
     return 405;
 }
 
-static sensor_error_code_t calculate_lux(tsl2561_adc_data_t data)
+static sensor_err_code_t calculate_lux(tsl2561_adc_data_t data)
 {
     uint32_t ch0buff = data.data0;
     uint32_t ch1buff = data.data1;
@@ -459,15 +459,15 @@ static sensor_error_code_t calculate_lux(tsl2561_adc_data_t data)
     vis_lux = vis_lux >> TSL2561_LUX_SCALE;
     ir_lux = ir_lux >> TSL2561_LUX_SCALE;
 
-    m_sensor_data.infrared_lux = ir_lux;
-    m_sensor_data.visible_lux = vis_lux;
+    m_sensor_data.ir_lux = ir_lux;
+    m_sensor_data.vis_lux = vis_lux;
 
     return NRF_SUCCESS;
 }
 
-static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code)
+static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code)
 {
-    static sensor_error_code_t m_err_code;
+    static sensor_err_code_t m_err_code;
     m_err_code = err_code;
 
     m_last_evt.evt_type = SENSOR_EVT_ERROR;
@@ -479,13 +479,13 @@ static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code)
     }
 }
 
-static sensor_error_code_t tsl2561_drv_set_power(tsl2561_power_t pwr)
+static sensor_err_code_t tsl2561_drv_set_power(tsl2561_power_t pwr)
 {
     uint8_t cmd[2];
     cmd[0] = TSL2561_CMD_TEMPLATE | TSL2561_REG_ADDR_CONTROL;
     cmd[1] = pwr;
 
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     err_code = nrf_drv_twi_tx(mp_twi, TSL2561_DEVICE_ADDR, cmd, 2, false);
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
 

@@ -60,7 +60,7 @@ static uint32_t on_rw_authorize_req(ble_apss_t *p_apss, ble_evt_t *p_ble_evt);
  * @param p_apss        Pointer to the application APSS Service structure.
  * @param p_sensor_evt  Pointer to the event received from sensor controller.
  */
-static void ble_apss_notify(ble_apss_t *p_apss, sensor_event_t *p_sensor_evt);
+static void ble_apss_notify(ble_apss_t *p_apss, sensor_evt_t *p_sensor_evt);
 
 /**
  * @brief Function that initializes the Sensing Interval Characteristic.
@@ -120,7 +120,7 @@ uint32_t ble_apss_on_ble_evt(ble_apss_t * p_apss, ble_evt_t * p_ble_evt)
     return NRF_SUCCESS;
 }
 
-void ble_apss_on_sensor_evt(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt)
+void ble_apss_on_sensor_evt(ble_apss_t * p_apss, sensor_evt_t *p_sensor_evt)
 {
     if(p_sensor_evt->sensor == SENSOR_BMP180 &&
             p_apss->conn_handle != BLE_CONN_HANDLE_INVALID)
@@ -138,8 +138,8 @@ void ble_apss_init(ble_apss_t * p_apss)
 
     service_uuid.uuid = BLE_APSS_SERVICE_UUID;
 
-    sensor_controller_cfg_data_t *p_cfg_data = sensor_controller_get_config_pointer();
-    sensor_controller_data_t *p_data = sensor_controller_get_sensor_data_pointer();
+    sensor_ctrl_cfg_t *p_cfg_data = sensor_ctrl_get_cfg_ptr();
+    sensor_ctrl_data_t *p_data = sensor_ctrl_get_data_ptr();
 
     p_apss->p_sensor_config = &p_cfg_data->bmp_cfg;
     p_apss->p_sensor_data = &p_data->bmp180_data;
@@ -189,13 +189,13 @@ static void on_write(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
         uint32_t new_interval = *((uint32_t *) p_evt_write->data);
 
         uint32_t err_code;
-        err_code = sensor_controller_set_sensor_sampling_interval(SENSOR_BMP180, new_interval);
+        err_code = sensor_ctrl_set_interval(SENSOR_BMP180, new_interval);
 
         if(err_code == SENSOR_SUCCESS)
         {
             reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-            reply.params.write.len = sizeof(p_apss->p_sensor_config->sampling_interval);
-            reply.params.write.p_data = (uint8_t *) (&p_apss->p_sensor_config->sampling_interval);
+            reply.params.write.len = sizeof(p_apss->p_sensor_config->interval);
+            reply.params.write.p_data = (uint8_t *) (&p_apss->p_sensor_config->interval);
         }
         else
         {
@@ -210,7 +210,7 @@ static void on_write(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
         sensor_state_t new_state = *((sensor_state_t *) p_evt_write->data);
 
         uint32_t err_code;
-        err_code = sensor_controller_set_sensor_state(SENSOR_BMP180, new_state);
+        err_code = sensor_ctrl_set_sensor_state(SENSOR_BMP180, new_state);
 
         if(err_code == SENSOR_SUCCESS)
         {
@@ -227,10 +227,10 @@ static void on_write(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
     }
     else if(p_evt_write->handle == p_apss->sensor_resolution_handle.value_handle)
     {
-        bmp180_pwr_mode_t pwr_mode = *((bmp180_pwr_mode_t *) p_evt_write->data);
+        bmp_pwr_mode_t pwr_mode = *((bmp_pwr_mode_t *) p_evt_write->data);
 
         uint32_t err_code;
-        err_code = sensor_controller_set_bmp_pwr_mode(pwr_mode);
+        err_code = sensor_ctrl_set_bmp_pwr_mode(pwr_mode);
 
         if(err_code == SENSOR_SUCCESS)
         {
@@ -283,7 +283,7 @@ static uint32_t on_rw_authorize_req(ble_apss_t *p_apss, ble_evt_t *p_ble_evt)
     return NRF_SUCCESS;
 }
 
-static void ble_apss_notify(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt)
+static void ble_apss_notify(ble_apss_t * p_apss, sensor_evt_t *p_sensor_evt)
 {
     uint16_t               len = sizeof(p_apss->p_sensor_data->temperature);
     ble_gatts_hvx_params_t hvx_params;
@@ -346,9 +346,9 @@ static void ble_apss_sensing_interval_init(ble_apss_t *p_apss)
     attr_char_value.p_attr_md   = &attr_md;
 
     //Set characteristic length in number of bytes and value
-    attr_char_value.max_len     = sizeof(p_apss->p_sensor_config->sampling_interval);
-    attr_char_value.init_len    = sizeof(p_apss->p_sensor_config->sampling_interval);
-    attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_config->sampling_interval);
+    attr_char_value.max_len     = sizeof(p_apss->p_sensor_config->interval);
+    attr_char_value.init_len    = sizeof(p_apss->p_sensor_config->interval);
+    attr_char_value.p_value     = (uint8_t *) &(p_apss->p_sensor_config->interval);
 
     //Add characteristic to the service
     err_code = sd_ble_gatts_characteristic_add(p_apss->service_handle,

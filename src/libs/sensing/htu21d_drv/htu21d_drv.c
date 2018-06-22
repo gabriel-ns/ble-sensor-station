@@ -58,15 +58,15 @@ typedef enum htu21d_reg_addr
  ***********************************************/
 APP_TIMER_DEF(m_htu21d_internal_timer);
 
-static htu21d_resolution_t m_sensor_resolution;
+static htu_resolution_t m_sensor_resolution;
 
 static htu21d_data_t m_sensor_data;
 
 static nrf_drv_twi_t *mp_twi;
 
-static sensor_event_callback_t p_event_callback = NULL;
+static sensor_evt_callback_t p_event_callback = NULL;
 
-static sensor_event_t m_last_evt;
+static sensor_evt_t m_last_evt;
 
 
 /***********************************************
@@ -74,9 +74,9 @@ static sensor_event_t m_last_evt;
  ***********************************************/
 static void timeout_cb(void * p_ctx);
 
-static uint16_t get_temp_conv_time(htu21d_resolution_t resolution);
+static uint16_t get_temp_conv_time(htu_resolution_t resolution);
 
-static uint16_t get_hum_conv_time(htu21d_resolution_t resolution);
+static uint16_t get_hum_conv_time(htu_resolution_t resolution);
 
 //static uint32_t htu21d_drv_check_res_integrity(htu21d_resolution_t * resolution);
 
@@ -84,25 +84,25 @@ static int16_t calculate_temperature(uint16_t buffer);
 
 static uint16_t calculate_rh(uint16_t buffer);
 
-static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code);
+static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code);
 
-static sensor_event_callback_t p_event_callback;
+static sensor_evt_callback_t p_event_callback;
 
 /***********************************************
  * Public functions implementation
  ***********************************************/
-sensor_error_code_t htu21d_drv_begin(nrf_drv_twi_t *p_twi,
-        htu21d_resolution_t resolution,
-        htu21d_resolution_t **p_p_res,
-        sensor_event_callback_t (*htu21d_event_cb)(sensor_event_t * event_data))
+sensor_err_code_t htu21d_drv_begin(nrf_drv_twi_t *p_twi,
+        htu_resolution_t resolution,
+        htu_resolution_t **p_p_res,
+        sensor_evt_callback_t (*htu21d_event_cb)(sensor_evt_t * event_data))
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     m_last_evt.sensor = SENSOR_HTU21D;
 
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *p_p_res = &m_sensor_resolution;
-    p_event_callback = (sensor_event_callback_t) htu21d_event_cb;
+    p_event_callback = (sensor_evt_callback_t) htu21d_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));
@@ -116,10 +116,10 @@ sensor_error_code_t htu21d_drv_begin(nrf_drv_twi_t *p_twi,
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t htu21d_drv_convert_data()
+sensor_err_code_t htu21d_drv_convert_data()
 {
     uint8_t cmd = HTU21D_REG_CONV_TEMP_NO_HOLD;
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
 
     err_code = nrf_drv_twi_tx(mp_twi, HTU21D_DEVICE_ADDR, &cmd, sizeof(cmd), false);
     SENSOR_COMMUNICATION_ERROR_CHECK(err_code);
@@ -139,9 +139,9 @@ htu21d_data_t htu21d_get_last_conversion_data()
     return m_sensor_data;
 }
 
-sensor_error_code_t htu21d_drv_set_resolution(htu21d_resolution_t resolution)
+sensor_err_code_t htu21d_drv_set_resolution(htu_resolution_t resolution)
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
 //    err_code = htu21d_drv_check_res_integrity(&resolution);
 //    HTU21D_RETURN_IF_ERROR(err_code);
 
@@ -160,7 +160,7 @@ sensor_error_code_t htu21d_drv_set_resolution(htu21d_resolution_t resolution)
 static void timeout_cb(void * p_ctx)
 {
     static uint16_t buffer;
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     buffer = 0;
 
     if(p_ctx == NULL)
@@ -200,8 +200,8 @@ static void timeout_cb(void * p_ctx)
         if(err_code != NRF_SUCCESS) error_call(SENSOR_EVT_ERROR, SENSOR_COMMUNICATION_ERROR);
 
         m_last_evt.evt_type = SENSOR_EVT_DATA_READY;
-        m_last_evt.sensor_data.htu21d_data.humidity = m_sensor_data.humidity;
-        m_last_evt.sensor_data.htu21d_data.temperature = m_sensor_data.temperature;
+        m_last_evt.sensor_data.htu_data.humidity = m_sensor_data.humidity;
+        m_last_evt.sensor_data.htu_data.temperature = m_sensor_data.temperature;
 
         if(p_event_callback != NULL)
         {
@@ -210,7 +210,7 @@ static void timeout_cb(void * p_ctx)
     }
 }
 
-static uint16_t get_temp_conv_time(htu21d_resolution_t resolution)
+static uint16_t get_temp_conv_time(htu_resolution_t resolution)
 {
     switch(resolution)
     {
@@ -230,7 +230,7 @@ static uint16_t get_temp_conv_time(htu21d_resolution_t resolution)
     return HTU21D_TEMP_14BIT_CONVERSION_TIME;
 }
 
-static uint16_t get_hum_conv_time(htu21d_resolution_t resolution)
+static uint16_t get_hum_conv_time(htu_resolution_t resolution)
 {
     switch(resolution)
     {
@@ -270,9 +270,9 @@ static uint16_t calculate_rh(uint16_t buffer)
     return (uint16_t) rh;
 }
 
-static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code)
+static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code)
 {
-    static sensor_error_code_t m_err_code;
+    static sensor_err_code_t m_err_code;
     m_err_code = err_code;
 
     m_last_evt.evt_type = SENSOR_EVT_ERROR;

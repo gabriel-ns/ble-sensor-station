@@ -78,7 +78,7 @@ APP_TIMER_DEF(m_bmp180_internal_timer);
 
 static bmp180_callibration_t m_calib_data;
 
-static bmp180_pwr_mode_t m_pwr_mode;
+static bmp_pwr_mode_t m_pwr_mode;
 
 static bmp180_data_t m_sensor_data;
 
@@ -86,41 +86,41 @@ static uint16_t raw_buffer;
 
 static nrf_drv_twi_t *mp_twi;
 
-static sensor_event_callback_t p_event_callback;
+static sensor_evt_callback_t p_event_callback;
 
-static sensor_event_t m_last_evt;
+static sensor_evt_t m_last_evt;
 /***********************************************
  * Private functions prototypes
  ***********************************************/
 static void timeout_cb(void * p_ctx);
 
-static sensor_error_code_t read_callibration_data();
+static sensor_err_code_t read_callibration_data();
 
-static uint16_t get_conversion_time(bmp180_pwr_mode_t pwr_mode);
+static uint16_t get_conversion_time(bmp_pwr_mode_t pwr_mode);
 
 static void calculate_result_values(int16_t raw_temp, uint32_t raw_pres);
 
-static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code);
+static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code);
 
-static sensor_error_code_t send_pressure_convert_cmd();
+static sensor_err_code_t send_pressure_convert_cmd();
 
-static sensor_error_code_t read_pressure_data(uint32_t *p_raw_press_data);
+static sensor_err_code_t read_pressure_data(uint32_t *p_raw_press_data);
 
 /***********************************************
  * Public functions implementation
  ***********************************************/
-sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
-        bmp180_pwr_mode_t pwr_mode,
-        bmp180_pwr_mode_t ** p_p_pwr_mode,
-        sensor_event_callback_t (* bmp180_event_cb)(sensor_event_t * event_data))
+sensor_err_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
+        bmp_pwr_mode_t pwr_mode,
+        bmp_pwr_mode_t ** p_p_pwr_mode,
+        sensor_evt_callback_t (* bmp180_event_cb)(sensor_evt_t * event_data))
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     m_last_evt.sensor = SENSOR_BMP180;
 
     if(p_twi == NULL) return SENSOR_INVALID_PARAMETER;
 
     *p_p_pwr_mode = &m_pwr_mode;
-    p_event_callback = (sensor_event_callback_t) bmp180_event_cb;
+    p_event_callback = (sensor_evt_callback_t) bmp180_event_cb;
     mp_twi = p_twi;
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));
@@ -137,7 +137,7 @@ sensor_error_code_t bmp180_drv_begin(nrf_drv_twi_t *p_twi,
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t bmp180_drv_convert_data()
+sensor_err_code_t bmp180_drv_convert_data()
 {
     static uint8_t tx_data[2] = {BMP180_REG_CTRL_MEAS, CONVERT_TEMPERATURE};
 
@@ -161,7 +161,7 @@ bmp180_data_t bmp180_drv_get_last_converson()
     return m_sensor_data;
 }
 
-sensor_error_code_t bmp180_set_pwr_mode(bmp180_pwr_mode_t pwr_mode)
+sensor_err_code_t bmp180_set_pwr_mode(bmp_pwr_mode_t pwr_mode)
 {
     if(pwr_mode > BMP180_SHUTDOWN) return SENSOR_INVALID_PARAMETER;
 
@@ -172,9 +172,9 @@ sensor_error_code_t bmp180_set_pwr_mode(bmp180_pwr_mode_t pwr_mode)
 /***********************************************
  * Private functions implementation
  ***********************************************/
-static sensor_error_code_t send_pressure_convert_cmd()
+static sensor_err_code_t send_pressure_convert_cmd()
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     static uint8_t reg_addr = BMP180_REG_OUT_MSB;
 
     err_code = nrf_drv_twi_tx(mp_twi, BMP180_DEVICE_ADDR, &reg_addr, sizeof(reg_addr), false);
@@ -224,9 +224,9 @@ static sensor_error_code_t send_pressure_convert_cmd()
     return SENSOR_SUCCESS;
 }
 
-static sensor_error_code_t read_pressure_data(uint32_t *p_raw_press_data)
+static sensor_err_code_t read_pressure_data(uint32_t *p_raw_press_data)
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     uint32_t pressure_data;
     static uint8_t reg_addr = BMP180_REG_OUT_MSB;
 
@@ -247,7 +247,7 @@ static sensor_error_code_t read_pressure_data(uint32_t *p_raw_press_data)
 }
 static void timeout_cb(void * p_ctx)
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
 
     if(p_ctx == bmp180_drv_convert_data)
     {
@@ -263,8 +263,8 @@ static void timeout_cb(void * p_ctx)
         calculate_result_values(raw_buffer, buff);
 
         m_last_evt.evt_type = SENSOR_EVT_DATA_READY;
-        m_last_evt.sensor_data.bmp180_data.pressure = m_sensor_data.pressure;
-        m_last_evt.sensor_data.bmp180_data.temperature = m_sensor_data.temperature;
+        m_last_evt.sensor_data.bmp_data.pressure = m_sensor_data.pressure;
+        m_last_evt.sensor_data.bmp_data.temperature = m_sensor_data.temperature;
 
         if(p_event_callback != NULL)
         {
@@ -273,9 +273,9 @@ static void timeout_cb(void * p_ctx)
     }
 }
 
-static sensor_error_code_t read_callibration_data()
+static sensor_err_code_t read_callibration_data()
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
 
     /** Clear the current value for all the calibration variables */
     memset(&m_calib_data, 0, sizeof(bmp180_callibration_t));
@@ -303,7 +303,7 @@ static sensor_error_code_t read_callibration_data()
     return SENSOR_SUCCESS;
 }
 
-static uint16_t get_conversion_time(bmp180_pwr_mode_t pwr_mode)
+static uint16_t get_conversion_time(bmp_pwr_mode_t pwr_mode)
 {
     /** Return the conversion time in ms according to the power mode */
     switch(pwr_mode)
@@ -378,9 +378,9 @@ static void calculate_result_values(int16_t raw_temp, uint32_t raw_pres)
     m_sensor_data.pressure = local_buff;
 }
 
-static void error_call(sensor_evt_type_t evt_type, sensor_error_code_t err_code)
+static void error_call(sensor_evt_type_t evt_type, sensor_err_code_t err_code)
 {
-    static sensor_error_code_t m_err_code;
+    static sensor_err_code_t m_err_code;
     m_err_code = err_code;
 
     m_last_evt.evt_type = SENSOR_EVT_ERROR;

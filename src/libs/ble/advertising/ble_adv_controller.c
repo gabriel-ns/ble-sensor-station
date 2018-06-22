@@ -36,29 +36,32 @@ ble_adv_data_t m_ble_adv_data =
 		.pressure = 0,
 		.temperature = 0,
 		.humidity = 0,
-		.visible_lux = 0,
-		.infrared_lux = 0
+		.vis_lux = 0,
+		.ir_lux = 0
 };
 
-void advertising_on_sensor_event(sensor_event_t *p_sensor_evt)
+void adv_on_sensor_event(sensor_evt_t *p_sensor_evt)
 {
-	if(p_sensor_evt-> evt_type != SENSOR_EVT_DATA_READY)
-	{
-		return;
-	}
+	if(p_sensor_evt->evt_type !=
+			SENSOR_EVT_DATA_READY) return;
 
 	switch(p_sensor_evt->sensor)
 	{
 	case SENSOR_BMP180:
-		m_ble_adv_data.pressure = p_sensor_evt->sensor_data.bmp180_data.pressure;
+		m_ble_adv_data.pressure =
+				p_sensor_evt->sensor_data.bmp_data.pressure;
 		break;
 	case SENSOR_HTU21D:
-		m_ble_adv_data.temperature = p_sensor_evt->sensor_data.htu21d_data.temperature;
-		m_ble_adv_data.humidity = p_sensor_evt->sensor_data.htu21d_data.humidity;
+		m_ble_adv_data.temperature =
+				p_sensor_evt->sensor_data.htu_data.temperature;
+		m_ble_adv_data.humidity =
+				p_sensor_evt->sensor_data.htu_data.humidity;
 		break;
 	case SENSOR_TSL2561:
-		m_ble_adv_data.infrared_lux = p_sensor_evt->sensor_data.tsl2561_data.infrared_lux;
-		m_ble_adv_data.visible_lux = p_sensor_evt->sensor_data.tsl2561_data.visible_lux;
+		m_ble_adv_data.ir_lux =
+				p_sensor_evt->sensor_data.tsl_data.ir_lux;
+		m_ble_adv_data.vis_lux =
+				p_sensor_evt->sensor_data.tsl_data.vis_lux;
 		break;
 	}
 
@@ -68,7 +71,6 @@ void advertising_on_sensor_event(sensor_event_t *p_sensor_evt)
 void advertising_init()
 {
     uint32_t err_code;
-
 
     /** Initialize advertising parameters (used when starting advertising). */
     memset(&m_adv_params, 0, sizeof(m_adv_params));
@@ -122,8 +124,7 @@ static void update_adv_data()
     scrsp_data.name_type = BLE_ADVDATA_FULL_NAME;
     scrsp_data.include_appearance = false;
 
-    err_code = ble_advdata_set(&adv_data, &scrsp_data);
-
+    ble_advdata_set(&adv_data, &scrsp_data);
 }
 
 ret_code_t advertising_update_adv_int(uint16_t ms)

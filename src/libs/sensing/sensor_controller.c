@@ -33,18 +33,18 @@ APP_TIMER_DEF(m_temp_hum_timer);
 
 static nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(0);
 
-static sensor_controller_cfg_data_t m_sc_cfg_data;
+static sensor_ctrl_cfg_t m_sc_cfg_data;
 
-static sensor_controller_data_t m_sensor_data;
+static sensor_ctrl_data_t m_sensor_data;
 
-static sensor_event_callback_t m_event_callback = NULL;
+static sensor_evt_callback_t m_event_callback = NULL;
 
 /***********************************************
  * Private functions prototypes
  ***********************************************/
 static void sensor_controller_twi_init();
 
-static void sensor_event_callback(sensor_event_t *p_evt);
+static void sensor_event_callback(sensor_evt_t *p_evt);
 
 static void pressure_timer_callback(void *p_ctx);
 
@@ -55,21 +55,23 @@ static void temp_hum_timer_callback(void *p_ctx);
 /***********************************************
  * Public functions implementation
  ***********************************************/
-void sensor_controller_init()
+void sensor_ctrl_init()
 {
     /* Common initialization procedure */
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     sensor_controller_twi_init();
 
     memset(&m_sensor_data, 0x00, sizeof(m_sensor_data));
     memset(&m_sc_cfg_data, 0x00, sizeof(m_sc_cfg_data));
 
     /* Pressure sensor initialization procedure */
-    err_code = app_timer_create(&m_pressure_timer, APP_TIMER_MODE_SINGLE_SHOT, pressure_timer_callback);
+    err_code = app_timer_create(&m_pressure_timer,
+    						    APP_TIMER_MODE_SINGLE_SHOT,
+								pressure_timer_callback);
     APP_ERROR_CHECK(err_code);
 
     m_sc_cfg_data.bmp_cfg.state = SENSOR_ACTIVE;
-    m_sc_cfg_data.bmp_cfg.sampling_interval = PRESSURE_DEFAULT_SAMPLING_INTERVAL;
+    m_sc_cfg_data.bmp_cfg.interval = PRESSURE_DEFAULT_INTERVAL;
 
     err_code = bmp180_drv_begin(&m_twi,
             BMP180_ULTRA_LOW_PWR,
@@ -77,16 +79,20 @@ void sensor_controller_init()
             (void *) sensor_event_callback);
 
     err_code = app_timer_start(m_pressure_timer,
-            APP_TIMER_TICKS(m_sc_cfg_data.bmp_cfg.sampling_interval, APP_TIMER_PRESCALER),
-            NULL);
+    		APP_TIMER_TICKS(m_sc_cfg_data.bmp_cfg.interval,
+    				        APP_TIMER_PRESCALER),
+			NULL);
+
     APP_ERROR_CHECK(err_code);
 
     /* Luminosity sensor initialization procedure */
-    err_code = app_timer_create(&m_luminosity_timer, APP_TIMER_MODE_SINGLE_SHOT, luminosity_timer_callback);
+    err_code = app_timer_create(&m_luminosity_timer,
+    		                    APP_TIMER_MODE_SINGLE_SHOT,
+								luminosity_timer_callback);
     APP_ERROR_CHECK(err_code);
 
     m_sc_cfg_data.tsl_cfg.state = SENSOR_ACTIVE;
-    m_sc_cfg_data.tsl_cfg.sampling_interval = LUMINOSITY_DEFAULT_SAMPLING_INTERVAL;
+    m_sc_cfg_data.tsl_cfg.interval = LUMINOSITY_DEFAULT_INTERVAL;
 
     err_code = tsl2561_drv_begin(&m_twi,
             TSL2561_DEFAULT_INT_TIME,
@@ -95,7 +101,7 @@ void sensor_controller_init()
             (void *) sensor_event_callback);
 
     err_code = app_timer_start(m_luminosity_timer,
-            APP_TIMER_TICKS(m_sc_cfg_data.tsl_cfg.sampling_interval, APP_TIMER_PRESCALER),
+            APP_TIMER_TICKS(m_sc_cfg_data.tsl_cfg.interval, APP_TIMER_PRESCALER),
             NULL);
     APP_ERROR_CHECK(err_code);
 
@@ -104,7 +110,7 @@ void sensor_controller_init()
     APP_ERROR_CHECK(err_code);
 
     m_sc_cfg_data.htu_cfg.state = SENSOR_ACTIVE;
-    m_sc_cfg_data.htu_cfg.sampling_interval = TEMP_HUM_DEFAULT_SAMPLING_INTERVAL;
+    m_sc_cfg_data.htu_cfg.interval = TEMP_HUM_DEFAULT_INTERVAL;
 
     err_code = htu21d_drv_begin(&m_twi,
             HTU21D_DEFAULT_RESOLUTION,
@@ -112,68 +118,68 @@ void sensor_controller_init()
             (void *) sensor_event_callback);
 
     err_code = app_timer_start(m_temp_hum_timer,
-            APP_TIMER_TICKS(m_sc_cfg_data.htu_cfg.sampling_interval, APP_TIMER_PRESCALER),
+            APP_TIMER_TICKS(m_sc_cfg_data.htu_cfg.interval, APP_TIMER_PRESCALER),
             NULL);
     APP_ERROR_CHECK(err_code);
 
 }
 
-void sensor_controller_event_subscribe(sensor_event_callback_t p_event_callback)
+void sensor_ctrl_evt_sub(sensor_evt_callback_t p_event_callback)
 {
     m_event_callback = p_event_callback;
 }
 
-sensor_controller_data_t * sensor_controller_get_sensor_data_pointer()
+sensor_ctrl_data_t * sensor_ctrl_get_data_ptr()
 {
     return &m_sensor_data;
 }
 
-sensor_controller_cfg_data_t * sensor_controller_get_config_pointer()
+sensor_ctrl_cfg_t * sensor_ctrl_get_cfg_ptr()
 {
     return &m_sc_cfg_data;
 }
 
-sensor_error_code_t sensor_controller_set_tsl_gain(tsl2561_gain_t gain)
+sensor_err_code_t sensor_ctrl_set_tsl_gain(tsl_gain_t gain)
 {
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t sensor_controller_set_tsl_int_time(tsl2561_integration_time_t int_time)
+sensor_err_code_t sensor_ctrl_set_tsl_int_time(tsl_int_time_t int_time)
 {
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t sensor_controller_set_htu_res(htu21d_resolution_t res)
+sensor_err_code_t sensor_ctrl_set_htu_res(htu_resolution_t res)
 {
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t sensor_controller_set_bmp_pwr_mode(bmp180_pwr_mode_t pwr_mode)
+sensor_err_code_t sensor_ctrl_set_bmp_pwr_mode(bmp_pwr_mode_t pwr_mode)
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     err_code = bmp180_set_pwr_mode(pwr_mode);
 
     return err_code;
 }
 
-sensor_error_code_t sensor_controller_set_sensor_sampling_interval(sensor_type_t sensor, uint32_t interval)
+sensor_err_code_t sensor_ctrl_set_interval(sensor_type_t sensor, uint32_t interval)
 {
-    sensor_error_code_t err_code;
+    sensor_err_code_t err_code;
     switch(sensor)
     {
         case SENSOR_BMP180:
             err_code = app_timer_stop(m_pressure_timer);
-            m_sc_cfg_data.bmp_cfg.sampling_interval = interval;
+            m_sc_cfg_data.bmp_cfg.interval = interval;
             pressure_timer_callback(NULL);
             break;
         case SENSOR_TSL2561:
             err_code = app_timer_stop(m_luminosity_timer);
-            m_sc_cfg_data.bmp_cfg.sampling_interval = interval;
+            m_sc_cfg_data.bmp_cfg.interval = interval;
             luminosity_timer_callback(NULL);
             break;
         case SENSOR_HTU21D:
             err_code = app_timer_stop(m_temp_hum_timer);
-            m_sc_cfg_data.htu_cfg.sampling_interval = interval;
+            m_sc_cfg_data.htu_cfg.interval = interval;
             temp_hum_timer_callback(NULL);
             break;
         default:
@@ -184,7 +190,7 @@ sensor_error_code_t sensor_controller_set_sensor_sampling_interval(sensor_type_t
     return SENSOR_SUCCESS;
 }
 
-sensor_error_code_t sensor_controller_set_sensor_state(sensor_type_t sensor, sensor_state_t state)
+sensor_err_code_t sensor_ctrl_set_sensor_state(sensor_type_t sensor, sensor_state_t state)
 {
     if(state != SENSOR_ACTIVE &&
             state != SENSOR_ERROR &&
@@ -232,11 +238,11 @@ static void sensor_controller_twi_init()
     nrf_drv_twi_enable(&m_twi);
 }
 
-static void sensor_event_callback(sensor_event_t *p_evt)
+static void sensor_event_callback(sensor_evt_t *p_evt)
 {
     if(p_evt->evt_type == SENSOR_EVT_ERROR)
     {
-        sensor_controller_set_sensor_state(p_evt->sensor, SENSOR_ERROR);
+        sensor_ctrl_set_sensor_state(p_evt->sensor, SENSOR_ERROR);
         return;
     }
     else
@@ -246,22 +252,33 @@ static void sensor_event_callback(sensor_event_t *p_evt)
             case SENSOR_BMP180:
                 if(p_evt->evt_type == SENSOR_EVT_DATA_READY)
                 {
-                    m_sensor_data.bmp180_data.pressure = p_evt->sensor_data.bmp180_data.pressure;
-                    m_sensor_data.bmp180_data.temperature = p_evt->sensor_data.bmp180_data.temperature;
+                    m_sensor_data.bmp180_data.pressure =
+                    		p_evt->sensor_data.bmp_data.pressure;
+
+                    m_sensor_data.bmp180_data.temperature =
+                    		p_evt->sensor_data.bmp_data.temperature;
                 }
                 break;
+
             case SENSOR_TSL2561:
                 if(p_evt->evt_type == SENSOR_EVT_DATA_READY)
                 {
-                    m_sensor_data.tsl2561_data.infrared_lux = p_evt->sensor_data.tsl2561_data.infrared_lux;
-                    m_sensor_data.tsl2561_data.visible_lux = p_evt->sensor_data.tsl2561_data.visible_lux;
+                    m_sensor_data.tsl2561_data.ir_lux =
+                    		p_evt->sensor_data.tsl_data.ir_lux;
+
+                    m_sensor_data.tsl2561_data.vis_lux =
+                    		p_evt->sensor_data.tsl_data.vis_lux;
                 }
                 break;
+
             case SENSOR_HTU21D:
                 if(p_evt->evt_type == SENSOR_EVT_DATA_READY)
                 {
-                    m_sensor_data.htu21d_data.temperature = p_evt->sensor_data.htu21d_data.temperature;
-                    m_sensor_data.htu21d_data.humidity = p_evt->sensor_data.htu21d_data.humidity;
+                    m_sensor_data.htu21d_data.temperature =
+                    		p_evt->sensor_data.htu_data.temperature;
+
+                    m_sensor_data.htu21d_data.humidity =
+                    		p_evt->sensor_data.htu_data.humidity;
                 }
                 break;
 
@@ -282,7 +299,7 @@ static void pressure_timer_callback(void *p_ctx)
         uint32_t err_code;
         err_code = bmp180_drv_convert_data();
         app_timer_start(m_pressure_timer,
-                APP_TIMER_TICKS(m_sc_cfg_data.bmp_cfg.sampling_interval, APP_TIMER_PRESCALER),
+                APP_TIMER_TICKS(m_sc_cfg_data.bmp_cfg.interval, APP_TIMER_PRESCALER),
                 NULL);
         APP_ERROR_CHECK(err_code);
     }
@@ -295,7 +312,7 @@ static void luminosity_timer_callback(void *p_ctx)
         uint32_t err_code;
         tsl2561_drv_convert_data();
         err_code = app_timer_start(m_luminosity_timer,
-                APP_TIMER_TICKS(m_sc_cfg_data.tsl_cfg.sampling_interval, APP_TIMER_PRESCALER),
+                APP_TIMER_TICKS(m_sc_cfg_data.tsl_cfg.interval, APP_TIMER_PRESCALER),
                 NULL);
         APP_ERROR_CHECK(err_code);
     }
@@ -308,7 +325,7 @@ static void temp_hum_timer_callback(void *p_ctx)
         uint32_t err_code;
         htu21d_drv_convert_data();
         err_code = app_timer_start(m_temp_hum_timer,
-                APP_TIMER_TICKS(m_sc_cfg_data.htu_cfg.sampling_interval, APP_TIMER_PRESCALER),
+                APP_TIMER_TICKS(m_sc_cfg_data.htu_cfg.interval, APP_TIMER_PRESCALER),
                 NULL);
         APP_ERROR_CHECK(err_code);
     }

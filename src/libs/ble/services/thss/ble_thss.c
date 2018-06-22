@@ -59,7 +59,7 @@ static uint32_t on_rw_authorize_req(ble_thss_t *p_thss, ble_evt_t *p_ble_evt);
  * @param p_thss        Pointer to the application THSS Service structure.
  * @param p_sensor_evt  Pointer to the event received from sensor controller.
  */
-static void ble_thss_notify(ble_thss_t *p_thss, sensor_event_t *p_sensor_evt);
+static void ble_thss_notify(ble_thss_t *p_thss, sensor_evt_t *p_sensor_evt);
 
 /**
  * @brief Function that initializes the Sensing Interval Characteristic.
@@ -119,7 +119,7 @@ uint32_t ble_thss_on_ble_evt(ble_thss_t * p_thss, ble_evt_t * p_ble_evt)
         return NRF_SUCCESS;
 }
 
-void ble_thss_on_sensor_evt(ble_thss_t *p_thss, sensor_event_t *p_sensor_evt)
+void ble_thss_on_sensor_evt(ble_thss_t *p_thss, sensor_evt_t *p_sensor_evt)
 {
     if(p_sensor_evt->sensor == SENSOR_HTU21D &&
             p_thss->conn_handle != BLE_CONN_HANDLE_INVALID)
@@ -137,8 +137,8 @@ void ble_thss_init(ble_thss_t * p_thss)
 
     service_uuid.uuid = BLE_THSS_SERVICE_UUID;
 
-    sensor_controller_cfg_data_t *p_cfg_data = sensor_controller_get_config_pointer();
-    sensor_controller_data_t *p_data = sensor_controller_get_sensor_data_pointer();
+    sensor_ctrl_cfg_t *p_cfg_data = sensor_ctrl_get_cfg_ptr();
+    sensor_ctrl_data_t *p_data = sensor_ctrl_get_data_ptr();
 
     p_thss->p_sensor_config = &p_cfg_data->htu_cfg;
     p_thss->p_sensor_data = &p_data->htu21d_data;
@@ -188,13 +188,13 @@ static void on_write(ble_thss_t *p_thss, ble_evt_t *p_ble_evt)
             uint32_t new_interval = *((uint32_t *) p_evt_write->data);
 
             uint32_t err_code;
-            err_code = sensor_controller_set_sensor_sampling_interval(SENSOR_HTU21D, new_interval);
+            err_code = sensor_ctrl_set_interval(SENSOR_HTU21D, new_interval);
 
             if(err_code == SENSOR_SUCCESS)
             {
                 reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(p_thss->p_sensor_config->sampling_interval);
-                reply.params.write.p_data = (uint8_t *) (&p_thss->p_sensor_config->sampling_interval);
+                reply.params.write.len = sizeof(p_thss->p_sensor_config->interval);
+                reply.params.write.p_data = (uint8_t *) (&p_thss->p_sensor_config->interval);
             }
             else
             {
@@ -209,7 +209,7 @@ static void on_write(ble_thss_t *p_thss, ble_evt_t *p_ble_evt)
             sensor_state_t new_state = *((sensor_state_t *) p_evt_write->data);
 
             uint32_t err_code;
-            err_code = sensor_controller_set_sensor_state(SENSOR_HTU21D, new_state);
+            err_code = sensor_ctrl_set_sensor_state(SENSOR_HTU21D, new_state);
 
             if(err_code == SENSOR_SUCCESS)
             {
@@ -226,10 +226,10 @@ static void on_write(ble_thss_t *p_thss, ble_evt_t *p_ble_evt)
         }
         else if(p_evt_write->handle == p_thss->sensor_resolution_handle.value_handle)
         {
-            htu21d_resolution_t res = *((htu21d_resolution_t *) p_evt_write->data);
+            htu_resolution_t res = *((htu_resolution_t *) p_evt_write->data);
 
             uint32_t err_code;
-            err_code = sensor_controller_set_htu_res(res);
+            err_code = sensor_ctrl_set_htu_res(res);
 
             if(err_code == SENSOR_SUCCESS)
             {
@@ -282,7 +282,7 @@ static uint32_t on_rw_authorize_req(ble_thss_t *p_thss, ble_evt_t *p_ble_evt)
     return NRF_SUCCESS;
 }
 
-static void ble_thss_notify(ble_thss_t *p_thss, sensor_event_t *p_sensor_evt)
+static void ble_thss_notify(ble_thss_t *p_thss, sensor_evt_t *p_sensor_evt)
 {
     uint16_t               len = sizeof(p_thss->p_sensor_data->temperature);
     ble_gatts_hvx_params_t hvx_params;
@@ -345,9 +345,9 @@ static void ble_thss_sensing_interval_init(ble_thss_t *p_thss)
     attr_char_value.p_attr_md   = &attr_md;
 
     //Set characteristic length in number of bytes and value
-    attr_char_value.max_len     = sizeof(p_thss->p_sensor_config->sampling_interval);
-    attr_char_value.init_len    = sizeof(p_thss->p_sensor_config->sampling_interval);
-    attr_char_value.p_value     = (uint8_t *) &(p_thss->p_sensor_config->sampling_interval);
+    attr_char_value.max_len     = sizeof(p_thss->p_sensor_config->interval);
+    attr_char_value.init_len    = sizeof(p_thss->p_sensor_config->interval);
+    attr_char_value.p_value     = (uint8_t *) &(p_thss->p_sensor_config->interval);
 
     //Add characteristic to the service
     err_code = sd_ble_gatts_characteristic_add(p_thss->service_handle,

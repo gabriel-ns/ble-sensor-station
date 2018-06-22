@@ -19,13 +19,14 @@
 /**
  * @brief UUID for Air Pressure Sensor Service.
  */
-#define BLE_APSS_SERVICE_UUID               0xABC1
+#define BLE_APSS_SERVICE_UUID                    0xABC1
 
-#define BLE_APSS_SENSING_INTERVAL_UUID      0x0A00
-#define BLE_APSS_SENSOR_STATUS_UUID         0x0A01
-#define BLE_APSS_SENSOR_RESOLUTION_UUID     0x0A02
-#define BLE_APSS_PRESSURE_DATA_UUID         0x0A03
-#define BLE_APSS_TEMPERATURE_DATA_UUID      0x0A04
+/** UUID for APSS characteristics */
+#define BLE_APSS_SENSING_INTERVAL_CHAR_UUID      0x0A00
+#define BLE_APSS_SENSOR_STATUS_CHAR_UUID         0x0A01
+#define BLE_APSS_SENSOR_RESOLUTION_CHAR_UUID     0x0A02
+#define BLE_APSS_PRESSURE_DATA_CHAR_UUID         0x0A03
+#define BLE_APSS_TEMPERATURE_DATA_CHAR_UUID      0x0A04
 
 
 /**
@@ -64,7 +65,7 @@ uint32_t ble_apss_on_ble_evt(ble_apss_t * p_apss, ble_evt_t * p_ble_evt);
  * @param p_apss        Pointer to Service Structure
  * @param p_sensor_evt  Pointer to the sensor event
  */
-void ble_apss_on_sensor_evt(ble_apss_t * p_apss, sensor_event_t *p_sensor_evt);
+void ble_apss_on_sensor_evt(ble_apss_t * p_apss, sensor_evt_t *p_sensor_evt);
 
 /**
  * @brief Function for initializing Air Pressure Sensor Service.
