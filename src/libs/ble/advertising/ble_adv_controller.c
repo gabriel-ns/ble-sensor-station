@@ -73,8 +73,6 @@ void advertising_init()
     /** Initialize advertising parameters (used when starting advertising). */
     memset(&m_adv_params, 0, sizeof(m_adv_params));
     m_adv_params.type = BLE_GAP_ADV_TYPE_ADV_IND;
-    m_adv_params.p_peer_addr = NULL; // Undirected advertisement.
-    m_adv_params.fp = BLE_GAP_ADV_FP_ANY;
     m_adv_params.interval = MSEC_TO_UNITS(200, UNIT_0_625_MS);
     m_adv_params.timeout = 0;
 
