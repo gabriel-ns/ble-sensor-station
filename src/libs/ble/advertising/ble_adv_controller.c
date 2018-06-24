@@ -118,7 +118,6 @@ static void update_adv_data()
     ble_advdata_t scrsp_data;
     memset(&scrsp_data, 0, sizeof(scrsp_data));
     scrsp_data.name_type = BLE_ADVDATA_FULL_NAME;
-    scrsp_data.include_appearance = false;
 
     ble_advdata_set(&adv_data, &scrsp_data);
 }
