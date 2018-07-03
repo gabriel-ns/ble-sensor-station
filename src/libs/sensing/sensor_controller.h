@@ -89,7 +89,7 @@ struct htu21d_sc_config
  */
 struct tsl2561_sc_config
 {
-        tsl2561_config_t    *p_config;
+        tsl2561_config_t    *p_cfg;
         uint32_t            interval;
         sensor_state_t      state;
 };

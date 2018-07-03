@@ -126,7 +126,8 @@ uint32_t ble_lss_on_ble_evt(ble_lss_t * p_lss, ble_evt_t * p_ble_evt)
         return NRF_SUCCESS;
 }
 
-void ble_lss_on_sensor_evt(ble_lss_t *p_lss, sensor_evt_t *p_sensor_evt)
+void ble_lss_on_sensor_evt(ble_lss_t *p_lss,
+		                   sensor_evt_t *p_sensor_evt)
 {
     if(p_sensor_evt->sensor == SENSOR_TSL2561 &&
             p_lss->conn_handle != BLE_CONN_HANDLE_INVALID)
@@ -140,14 +141,11 @@ void ble_lss_init(ble_lss_t * p_lss)
     uint32_t        err_code;
     ble_uuid_t      service_uuid;
     ble_uuid128_t   base_uuid = { BLE_SERVICES_BASE_UUID };
-
-
     service_uuid.uuid = BLE_LSS_SERVICE_UUID;
 
     sensor_ctrl_cfg_t *p_cfg_data = sensor_ctrl_get_cfg_ptr();
     sensor_ctrl_data_t *p_data = sensor_ctrl_get_data_ptr();
-
-    p_lss->p_sensor_config = &p_cfg_data->tsl_cfg;
+    p_lss->p_sensor_cfg = &p_cfg_data->tsl_cfg;
     p_lss->p_sensor_data = &p_data->tsl2561_data;
 
     /* Start the service with invalid handle */
@@ -201,8 +199,8 @@ static void on_write(ble_lss_t *p_lss, ble_evt_t *p_ble_evt)
             if(err_code == SENSOR_SUCCESS)
             {
                 reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(p_lss->p_sensor_config->interval);
-                reply.params.write.p_data = (uint8_t *) (&p_lss->p_sensor_config->interval);
+                reply.params.write.len = sizeof(p_lss->p_sensor_cfg->interval);
+                reply.params.write.p_data = (uint8_t *) (&p_lss->p_sensor_cfg->interval);
             }
             else
             {
@@ -222,8 +220,8 @@ static void on_write(ble_lss_t *p_lss, ble_evt_t *p_ble_evt)
             if(err_code == SENSOR_SUCCESS)
             {
                 reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(p_lss->p_sensor_config->state);
-                reply.params.write.p_data = (uint8_t *) (&p_lss->p_sensor_config->state);
+                reply.params.write.len = sizeof(p_lss->p_sensor_cfg->state);
+                reply.params.write.p_data = (uint8_t *) (&p_lss->p_sensor_cfg->state);
             }
             else
             {
@@ -242,8 +240,8 @@ static void on_write(ble_lss_t *p_lss, ble_evt_t *p_ble_evt)
             if(err_code == SENSOR_SUCCESS)
             {
                 reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(p_lss->p_sensor_config->p_config->int_time);
-                reply.params.write.p_data = (uint8_t *) (p_lss->p_sensor_config->p_config->int_time);
+                reply.params.write.len = sizeof(p_lss->p_sensor_cfg->p_cfg->int_time);
+                reply.params.write.p_data = (uint8_t *) (p_lss->p_sensor_cfg->p_cfg->int_time);
             }
             else
             {
@@ -252,7 +250,8 @@ static void on_write(ble_lss_t *p_lss, ble_evt_t *p_ble_evt)
                 reply.params.write.p_data = NULL;
             }
         }
-        else if(p_evt_write->handle == p_lss->sensor_gain_handle.value_handle)
+        else if(p_evt_write->handle ==
+        		p_lss->sensor_gain_handle.value_handle)
         {
             tsl_gain_t gain = *((tsl_gain_t *) p_evt_write->data);
 
@@ -261,13 +260,16 @@ static void on_write(ble_lss_t *p_lss, ble_evt_t *p_ble_evt)
 
             if(err_code == SENSOR_SUCCESS)
             {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-                reply.params.write.len = sizeof(p_lss->p_sensor_config->p_config->gain);
-                reply.params.write.p_data = (uint8_t *) (p_lss->p_sensor_config->p_config->gain);
+                reply.params.write.gatt_status =
+                	BLE_GATT_STATUS_SUCCESS;
+                reply.params.write.len = sizeof(tsl_gain_t);
+                reply.params.write.p_data =
+                	(uint8_t *) (p_lss->p_sensor_cfg->p_cfg->gain);
             }
             else
             {
-                reply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
+                reply.params.write.gatt_status =
+                	BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
                 reply.params.write.len = 0;
                 reply.params.write.p_data = NULL;
             }
@@ -310,9 +312,9 @@ static uint32_t on_rw_authorize_req(ble_lss_t *p_lss, ble_evt_t *p_ble_evt)
     return NRF_SUCCESS;
 }
 
-static void ble_lss_notify(ble_lss_t *p_lss, sensor_evt_t *p_sensor_evt)
-{
-    uint16_t               len = sizeof(p_lss->p_sensor_data->ir_lux);
+static void ble_lss_notify(ble_lss_t *p_lss,
+		                  sensor_evt_t *p_sensor_evt){
+    uint16_t len = sizeof(p_lss->p_sensor_data->ir_lux);
     ble_gatts_hvx_params_t hvx_params;
     memset(&hvx_params, 0, sizeof(hvx_params));
 
@@ -373,9 +375,9 @@ static void ble_lss_sensing_interval_char_init(ble_lss_t *p_lss)
     attr_char_value.p_attr_md   = &attr_md;
 
     //Set characteristic length in number of bytes and value
-    attr_char_value.max_len     = sizeof(p_lss->p_sensor_config->interval);
-    attr_char_value.init_len    = sizeof(p_lss->p_sensor_config->interval);
-    attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_config->interval);
+    attr_char_value.max_len     = sizeof(p_lss->p_sensor_cfg->interval);
+    attr_char_value.init_len    = sizeof(p_lss->p_sensor_cfg->interval);
+    attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_cfg->interval);
 
     //Add characteristic to the service
     err_code = sd_ble_gatts_characteristic_add(p_lss->service_handle,
@@ -423,9 +425,9 @@ static void ble_lss_sensor_status_char_init(ble_lss_t *p_lss)
         attr_char_value.p_attr_md   = &attr_md;
 
         //Set characteristic length in number of bytes and value
-        attr_char_value.max_len     = sizeof(p_lss->p_sensor_config->state);
-        attr_char_value.init_len    = sizeof(p_lss->p_sensor_config->state);
-        attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_config->state);
+        attr_char_value.max_len     = sizeof(p_lss->p_sensor_cfg->state);
+        attr_char_value.init_len    = sizeof(p_lss->p_sensor_cfg->state);
+        attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_cfg->state);
 
         //Add characteristic to the service
         err_code = sd_ble_gatts_characteristic_add(p_lss->service_handle,
@@ -473,9 +475,9 @@ static void ble_lss_sensor_integration_time_char_init(ble_lss_t *p_lss)
     attr_char_value.p_attr_md   = &attr_md;
 
     //Set characteristic length in number of bytes and value
-    attr_char_value.max_len     = sizeof(p_lss->p_sensor_config->p_config->int_time);
-    attr_char_value.init_len    = sizeof(p_lss->p_sensor_config->p_config->int_time);
-    attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_config->p_config->int_time);
+    attr_char_value.max_len     = sizeof(p_lss->p_sensor_cfg->p_cfg->int_time);
+    attr_char_value.init_len    = sizeof(p_lss->p_sensor_cfg->p_cfg->int_time);
+    attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_cfg->p_cfg->int_time);
 
     //Add characteristic to the service
     err_code = sd_ble_gatts_characteristic_add(p_lss->service_handle,
@@ -523,9 +525,9 @@ static void ble_lss_sensor_gain_char_init(ble_lss_t *p_lss)
     attr_char_value.p_attr_md   = &attr_md;
 
     //Set characteristic length in number of bytes and value
-    attr_char_value.max_len     = sizeof(p_lss->p_sensor_config->p_config->gain);
-    attr_char_value.init_len    = sizeof(p_lss->p_sensor_config->p_config->gain);
-    attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_config->p_config->gain);
+    attr_char_value.max_len     = sizeof(p_lss->p_sensor_cfg->p_cfg->gain);
+    attr_char_value.init_len    = sizeof(p_lss->p_sensor_cfg->p_cfg->gain);
+    attr_char_value.p_value     = (uint8_t *) &(p_lss->p_sensor_cfg->p_cfg->gain);
 
     //Add characteristic to the service
     err_code = sd_ble_gatts_characteristic_add(p_lss->service_handle,

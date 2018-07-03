@@ -113,12 +113,9 @@ int main(void)
     APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
 
     // Start the application timer
-    APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, app_timer_evt_schedule);
-
-    APP_ERROR_CHECK(NRF_LOG_INIT(NULL));
-
-    NRF_LOG_INFO("nrf51 test\n");
-    NRF_LOG_FLUSH();
+    APP_TIMER_INIT(APP_TIMER_PRESCALER,
+    		       APP_TIMER_OP_QUEUE_SIZE,
+				   app_timer_evt_schedule);
 
     // Set the clock configuration
     nrf_clock_lf_cfg_t lf_clock_config;
@@ -129,8 +126,6 @@ int main(void)
 
     // Initialize the SoftDevice handler module.
      SOFTDEVICE_HANDLER_INIT(&lf_clock_config, NULL);
-    NRF_LOG_INFO("Initializing FW\n");
-    NRF_LOG_FLUSH();
 
     sensor_ctrl_init();
     ble_manager_init();
@@ -140,7 +135,6 @@ int main(void)
     {
         app_sched_execute();
         power_manage();
-        NRF_LOG_FLUSH();
     }
 }
 

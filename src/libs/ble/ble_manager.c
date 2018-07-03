@@ -37,32 +37,36 @@
 
 #include "ble_adv_controller.h"
 
-static ble_thss_t m_ble_thss;
-static ble_apss_t m_ble_apss;
-static ble_lss_t m_ble_lss;
-static ble_rpcs_t m_ble_rpcs;
 
 static void gap_params_init(void);
 static void ble_stack_init(void);
 static void conn_params_init(void);
 static void ble_mac_addr_get(uint8_t *device_addr);
 
-
 static void sensor_evt_dispatch(sensor_evt_t *p_sensor_evt);
+
+static ble_thss_t m_ble_thss; // THSS Service Instance
+static ble_apss_t m_ble_apss; // APSS Service Instance
+static ble_lss_t m_ble_lss;   // LSS Service Instance
+static ble_rpcs_t m_ble_rpcs; // RPCS Service Instance
 
 void ble_manager_init()
 {
+	// Initialize the BLE
     ble_stack_init();
     gap_params_init();
     conn_params_init();
 
+    // Initialize the Advertising
     advertising_init();
 
+    // Initializes the GATT Services
     ble_apss_init(&m_ble_apss);
     ble_thss_init(&m_ble_thss);
     ble_lss_init(&m_ble_lss);
     ble_rpcs_init(&m_ble_rpcs);
 
+    // Subscribe to sensor events
     sensor_ctrl_evt_sub(sensor_evt_dispatch);
 }
 
@@ -223,6 +227,7 @@ static void ble_mac_addr_get(uint8_t *device_addr)
     device_addr[4] = (device_id[1] >> 0 * 8) & 0xFF;
     device_addr[5] = (device_id[1] >> 1 * 8) & 0xFF;
     // two most significant bits of last byte must be 1's
+    // for Random Static Address
     device_addr[5] |= 0xC0;
 }
 

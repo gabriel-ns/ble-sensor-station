@@ -46,7 +46,7 @@ struct ble_lss
         ble_gatts_char_handles_t    sensor_gain_handle;       /**< Handle of Sensor Gain Characteristic. */
         ble_gatts_char_handles_t    visible_data_handle;      /**< Handle of Visible Lux Data Characteristic. */
         ble_gatts_char_handles_t    infrared_data_handle;     /**< Handle of Infrared Lux Data Characteristic. */
-        tsl2561_sc_config_t         *p_sensor_config;         /**< Pointer to TSL2561 sensor configuration. */
+        tsl2561_sc_config_t         *p_sensor_cfg;            /**< Pointer to TSL2561 sensor configuration. */
         tsl2561_data_t              *p_sensor_data;           /**< Pointer to TSL2561 sensor data */
 };
 

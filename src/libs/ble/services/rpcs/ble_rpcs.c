@@ -113,7 +113,8 @@ static void on_write(ble_rpcs_t *p_rpcs, ble_evt_t *p_ble_evt)
 	reply.params.write.p_data = NULL;
 
 	// Write to appropriate characteristic.
-	ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.authorize_request.request.write;
+	ble_gatts_evt_write_t *p_evt_write =
+			&p_ble_evt->evt.gatts_evt.params.authorize_request.request.write;
 
 	if(p_evt_write->handle == p_rpcs->adv_int_handle.value_handle)
 	{

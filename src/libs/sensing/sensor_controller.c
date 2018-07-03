@@ -97,7 +97,7 @@ void sensor_ctrl_init()
     err_code = tsl2561_drv_begin(&m_twi,
             TSL2561_DEFAULT_INT_TIME,
             TSL2561_DEFAULT_GAIN,
-            &m_sc_cfg_data.tsl_cfg.p_config,
+            &m_sc_cfg_data.tsl_cfg.p_cfg,
             (void *) sensor_event_callback);
 
     err_code = app_timer_start(m_luminosity_timer,
